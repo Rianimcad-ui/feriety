@@ -17,7 +17,7 @@ body.wide{max-width:1400px}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--sf);z-index:10}
 header{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--sf);border-bottom:1px solid var(--bd);padding:10px 14px 0}
 .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
-h1{font-size:18px;margin:0}h2{font-size:16px;margin:0}
+h1{font-size:30px;margin:0}h2{font-size:16px;margin:0}
 .mu{color:var(--mu);font-size:13px}
 button,select,input{font:inherit;color:var(--tx)}
 button{cursor:pointer}
@@ -46,7 +46,7 @@ main{padding:12px 12px 40px}
 .e{visibility:hidden}
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20;display:flex;align-items:flex-end;justify-content:center}
 .sh{background:var(--sf);width:100%;max-width:520px;border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));max-height:85vh;overflow:auto}
-.sh h2{text-transform:capitalize;font-size:30px}
+.sh h2{text-transform:capitalize;font-size:18px}
 .f1{width:100%;padding:11px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);margin:6px 0}
 .pb{width:100%;background:var(--ac);color:var(--acx);border:0;border-radius:12px;padding:13px;font-weight:700;margin-top:8px}
 .lk{background:none;border:0;color:var(--ac);padding:8px;width:100%}
@@ -55,6 +55,7 @@ main{padding:12px 12px 40px}
 .auth{padding:40px 20px}
 body.bgin::after{content:"";position:fixed;inset:0;background:url(sfondo.jpg) center/cover no-repeat;z-index:-1}
 body.bgin::before{background:transparent}
+.auth h1,.auth h1+p{text-align:center}
 body.bgin .auth{background:color-mix(in srgb,var(--sf) 90%,transparent);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-radius:16px;margin-top:6vh;padding:28px 22px;box-shadow:0 8px 30px rgba(20,60,110,.18)}
 .tw{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden}
 table{border-collapse:collapse;width:100%;font-size:14px}
@@ -113,7 +114,7 @@ const SUPABASE_URL="https://pnovzqmipdctbacqfjmr.supabase.co",SUPABASE_KEY="eyJh
 // ==========================================
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const SH=["M","P","N","S","R"],NM={M:"Mattina",P:"Pomeriggio",N:"Notte",S:"Smonto",R:"Riposo"},TEAMS=["A","B","C","D","E"],MAX=3;
+const SH=["M","P","N","S","R"],NM={M:"Mattina",P:"Pomeriggio",N:"Notte",S:"Smonto",R:"Riposo"},TEAMS=["A","B","C","D","E","MT"],MAX=3;
 const MOT=["Ferie","Permesso retribuito","Legge 104","Malattia figlio","Visita medica","Lutto","Studio / esame","Altro motivo"];
 const MESI=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
 const pad=n=>String(n).padStart(2,"0"),iso=(y,m,d)=>y+"-"+pad(m+1)+"-"+pad(d),fd=k=>k.split("-").reverse().join("/");
@@ -126,7 +127,8 @@ const fhref=()=>"mailto:"+ADM+"?subject="+encodeURIComponent("Richiesta reset pa
 const genpw=()=>{const c="abcdefghjkmnpqrstuvwxyz23456789",a=crypto.getRandomValues(new Uint8Array(8));return[...a].map(x=>c[x%c.length]).join("")};
 const leap=y=>(y%4===0&&y%100!==0)||y%400===0;
 // Dal 1° marzo i turni slittano di uno, MA NON negli anni bisestili.
-function shift(team,y,m,d){const[ay,am,ad]=ANCHOR.split("-").map(Number);
+function shift(team,y,m,d){if(team==="MT")return"M";// squadra MT: solo Mattina, nessuna rotazione e nessuno slittamento dal 1° marzo
+const[ay,am,ad]=ANCHOR.split("-").map(Number);
 const n=Math.round((Date.UTC(y,m,d)-Date.UTC(ay,am-1,ad))/864e5);let x=0;const t0=Date.UTC(ay,am-1,ad),t1=Date.UTC(y,m,d);for(let yy=ay;yy<=y;yy++){const q=Date.UTC(yy,2,1);if(q>t0&&q<=t1&&!leap(yy))x++}return SH[(((n+x+TEAMS.indexOf(team))%5)+5)%5]}
 const hc0={};
 function hols(y){if(hc0[y])return hc0[y];const h={};const add=(m,d,n)=>h[m+"-"+d]=n;
@@ -151,7 +153,7 @@ if(!user&&mode==="forgot"){$("#app").innerHTML=`<div class="auth"><h1>Password d
 <button class="lk" data-a="back">Torna all’accesso</button></div>`;return}
 if(!user){const reg=mode==="reg";
 $("#app").innerHTML=`<div class="auth"><h1>Ferie reparto</h1><p class="mu">Richieste di ferie e permessi in ospedale</p>
-${reg?`<input class="f1" id="an" placeholder="Nome e cognome" autocomplete="name">`:""}
+${reg?`<input class="f1" id="an" placeholder="Cognome e Nome" autocomplete="name">`:""}
 <input class="f1" id="ae" placeholder="Numero di matricola" autocomplete="username">
 ${reg?`<select class="f1" id="at">${TEAMS.map(t=>`<option value="${t}">Squadra ${t}</option>`).join("")}</select>`:""}
 <input class="f1" id="ap" type="password" placeholder="Password" autocomplete="${reg?"new-password":"current-password"}">
@@ -193,7 +195,7 @@ ${mine?`<p class="mu">Hai già una richiesta per questo giorno.</p>`
 :full?`<div class="wn"><b>Giornata al completo (${MAX}/${MAX}).</b> Non è possibile inserire altre richieste: comunica la tua richiesta al coordinatore.</div>`
 :`<select class="f1" id="rs">${MOT.map(x=>`<option>${x}</option>`).join("")}</select><input class="f1" id="rx" maxlength="80" placeholder="Specifica il motivo (causale obbligatoria)" style="display:none"><button class="pb" data-a="add" data-v="${k}">Invia richiesta</button>`}
 </div></div>`}
-const TC={A:"#1d4ed8",B:"#15803d",C:"#c2410c",D:"#7e22ce",E:"#be185d"};
+const TC={A:"#1d4ed8",B:"#15803d",C:"#c2410c",D:"#7e22ce",E:"#be185d",MT:"#0f766e"};
 function txt(){const m=gm;let o="Richieste ferie e permessi - "+MESI[m]+" "+year+"\n";
 TEAMS.forEach(t=>{const L=reqs.filter(r=>r.team===t&&r.date.startsWith(year+"-"+pad(m+1))),by={};
 L.forEach(r=>{const n=r.name+" (matr. "+r.mat+")";(by[n]=by[n]||[]).push(r)});
@@ -218,10 +220,10 @@ ${body}
 <div class="npr pbar"><p class="mu">Stampa su foglio A4 in orizzontale, con tutti i giorni del mese:</p>
 <select class="f1" id="pr"><option value="all" ${pt==="all"?"selected":""}>Tutte le squadre (più fogli A4, uno per squadra)</option>${TEAMS.map(t=>`<option value="${t}" ${pt===t?"selected":""}>Solo squadra ${t} (1 foglio A4)</option>`).join("")}</select>
 <button class="pb" data-a="print">Stampa</button></div>
-<div class="npr"><p class="mu">Invio manuale (di riserva) al coordinatore:</p>
+${user.adm?`<div class="npr"><p class="mu">Invio al coordinatore (solo amministratore): la tabella parte come PDF allegato, identico all’anteprima di stampa, con le squadre scelte nel menu di stampa qui sopra.</p>
 <input class="f1" id="co" type="email" placeholder="Email del coordinatore" value="${esc(coord)}">
-<a class="pb" style="display:block;text-align:center;text-decoration:none" id="ml" target="_blank" rel="noopener" href="mailto:${encodeURIComponent(coord)}?subject=${encodeURIComponent("Richieste ferie "+MESI[m]+" "+year)}&body=${encodeURIComponent(txt())}">Invia al coordinatore</a>
-<button class="lk" data-a="copy">Copia tabella</button></div>`}
+<button class="pb" data-a="sendpdf">Invia PDF al coordinatore</button>
+<button class="lk" data-a="pdf">Scarica PDF</button><button class="lk" data-a="copy">Copia tabella</button></div>`:""}`}
 function profile(){return `<div class="ov" data-a="close"><div class="sh" data-a="keep"><div class="row"><h2>${esc(user.name)}</h2><button class="ib" data-a="close">✕</button></div>
 <p class="mu">Matricola ${esc(user.mat)}</p><label class="mu">Squadra</label><select class="f1" id="pt">${TEAMS.map(t=>`<option ${t===user.team?"selected":""}>${t}</option>`).join("")}</select>
 ${user.adm?`<hr><h2>Amministratore: reset password</h2><p class="mu">Imposta una password generica: l’utente dovrà cambiarla al primo accesso.</p>
@@ -255,6 +257,47 @@ if(error){const m=error.message||"";
 toast(m.includes("LIMITE_3")?"Giornata al completo: comunica la richiesta al coordinatore":m.includes("TERMINE")?"Termine scaduto: contatta il coordinatore":error.code==="23505"?"Hai già una richiesta per questo giorno":"Errore: riprova");
 await load();return}
 sel=null;toast("Richiesta inviata");await load()}
+// ===== PDF identico all'anteprima di stampa (A4 orizzontale, un foglio per squadra) =====
+const PDFLIBS=["https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js","https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"];
+const loadScript=u=>new Promise((ok,ko)=>{const e=document.createElement("script");e.src=u;e.onload=ok;e.onerror=ko;document.head.appendChild(e)});
+async function pdfLibs(){if(!(window.jspdf&&window.jspdf.jsPDF)){await loadScript(PDFLIBS[0]);await loadScript(PDFLIBS[1])}}
+async function buildPdf(sel){await pdfLibs();const{jsPDF}=window.jspdf,m=gm,nd=new Date(Date.UTC(year,m+1,0)).getUTCDate(),H=hols(year),dn=["D","L","M","M","G","V","S"];
+const doc=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});
+const rgb=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)),tint=(c,k)=>c.map(v=>Math.round(255-(255-v)*k));
+const SC={M:["#fde7a8","#6b4a00"],P:["#ffd2b0","#7a3300"],N:["#c9d0f7","#1f2a7a"],S:["#ecd0f4","#5a1d70"],R:["#cfeedb","#14532d"]};
+const WK=[247,234,233],RED=[180,35,24],WHITE=[255,255,255],BLACK=[0,0,0],W=281,FC=50;
+const days=[];for(let d=1;d<=nd;d++){const w=new Date(Date.UTC(year,m,d)).getUTCDay();days.push({d,k:iso(year,m,d),w,off:!!(H[m+"-"+d]||w===0)})}
+const list=sel==="all"?TEAMS:[sel];let first=true;
+list.forEach(t=>{if(!first)doc.addPage();first=false;
+const E=emps(t),tc=rgb(TC[t]),mese=MESI[m][0].toUpperCase()+MESI[m].slice(1);
+doc.setFillColor(...tc);doc.rect(8,8,W,9,"F");doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(14);
+doc.text("Squadra "+t+" · "+mese+" "+year+" · "+E.length+" dipendenti",12,14.3);
+const head=[[{content:"Dipendente",styles:{halign:"left"}},...days.map(x=>({content:dn[x.w]+"\n"+x.d,styles:{textColor:x.off?RED:BLACK,fillColor:x.off?WK:WHITE}}))]];
+const lt=tint(tc,.12),body=[];
+body.push([{content:"Turno",styles:{halign:"left",fillColor:lt,textColor:[80,80,80]}},...days.map(x=>{const sh=shift(t,year,m,x.d);return{content:sh,styles:{fillColor:rgb(SC[sh][0]),textColor:rgb(SC[sh][1]),fontStyle:"bold"}}})]);
+if(E.length){E.forEach(e=>body.push([{content:e.name+"  "+e.mat,styles:{halign:"left",fillColor:lt}},...days.map(x=>{const r=reqs.find(q=>q.date===x.k&&q.uid===e.uid);
+return r?{content:String(r.reason||"?")[0],styles:{fillColor:tc,textColor:WHITE,fontStyle:"bold"}}:{content:"",styles:{fillColor:x.off?WK:WHITE}}})]))}
+else body.push([{content:"Nessun dipendente registrato",colSpan:nd+1,styles:{halign:"left",fillColor:lt,textColor:[80,80,80]}}]);
+body.push([{content:"Richieste",styles:{halign:"left",fontStyle:"bold",fillColor:lt}},...days.map(x=>{const n=reqs.filter(r=>r.date===x.k&&r.team===t).length;
+return{content:n?String(n):"",styles:{fillColor:x.off?WK:WHITE,textColor:n>=MAX?RED:BLACK,fontStyle:n>=MAX?"bold":"normal"}}})]);
+const cs={0:{cellWidth:FC,halign:"left",cellPadding:{top:1.6,bottom:1.6,left:2,right:1}}};for(let i=1;i<=nd;i++)cs[i]={cellWidth:(W-FC)/nd};
+doc.autoTable({head,body,startY:19,margin:{left:8,right:8,top:8,bottom:8},tableWidth:W,theme:"grid",columnStyles:cs,
+styles:{font:"helvetica",fontSize:8,cellPadding:{top:1.6,bottom:1.6,left:0,right:0},halign:"center",valign:"middle",lineColor:[153,153,153],lineWidth:.2,textColor:BLACK,overflow:"ellipsize"},
+headStyles:{fillColor:WHITE,textColor:BLACK,fontStyle:"bold",fontSize:7.5}})});
+return doc}
+const pdfName=()=>"Turni_ferie_"+MESI[gm]+"_"+year+(pt==="all"?"":"_squadra_"+pt)+".pdf";
+// Invio (solo amministratore): 1) email automatica con PDF allegato (funzione Supabase "invia-turni"), 2) condivisione con allegato (smartphone), 3) scarica il PDF e apre l'email
+async function sendPdf(){if(!user||!user.adm){toast("Non autorizzato");return}
+const to=(($("#co")||{}).value||coord).trim();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)){toast("Inserisci l'email del coordinatore");return}
+toast("Preparo il PDF…");let doc;try{doc=await buildPdf(pt)}catch(e){toast("Errore nella creazione del PDF");return}
+const fn=pdfName(),subject="Richieste ferie "+MESI[gm]+" "+year,text="Buongiorno, in allegato la tabella delle richieste di ferie e permessi di "+MESI[gm]+" "+year+" (PDF).\nCordiali saluti";
+try{const r=await sb.functions.invoke("invia-turni",{body:{to,subject,text,filename:fn,pdf:doc.output("datauristring").split(",")[1]}});
+if(!r.error&&r.data&&r.data.ok){toast("Email con PDF inviata al coordinatore");return}}catch(e){}
+const file=new File([doc.output("blob")],fn,{type:"application/pdf"});
+if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:subject,text});return}catch(e){if(e&&e.name==="AbortError")return}}
+doc.save(fn);toast("PDF scaricato: allegalo all'email");
+window.location.href="mailto:"+encodeURIComponent(to)+"?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(text+"\n\n(Allega il file "+fn+" appena scaricato)")}
+async function dlPdf(){if(!user||!user.adm)return;toast("Preparo il PDF…");try{(await buildPdf(pt)).save(pdfName())}catch(e){toast("Errore nella creazione del PDF")}}
 // Stampa: tutte le squadre (un foglio A4 orizzontale per squadra) oppure una sola squadra (1 foglio)
 function doPrint(){const ps=$("#ps");
 ps.textContent=pt==="all"?"":"@media print{.ts:not([data-t=\""+pt+"\"]){display:none!important}}";
@@ -275,7 +318,7 @@ else if(a==="prof"){prof=true;render()}
 else if(a==="save"){const t=$("#pt").value;const{error}=await sb.from("profiles").update({team:t}).eq("id",user.uid);
 if(error)toast("Errore: riprova");else{user.team=t;gt=null;prof=false;await load()}}
 else if(a==="out"){await sb.auth.signOut();user=null;prof=false;sel=null;reqs=[];render()}
-else if(a==="print")doPrint();
+else if(a==="print")doPrint();else if(a==="sendpdf")await sendPdf();else if(a==="pdf")await dlPdf();
 else if(a==="forgot"){mode="forgot";render()}
 else if(a==="back"){mode="login";render()}
 else if(a==="newpw"){const p1=$("#n1").value,p2=$("#n2").value,er=$("#err");
