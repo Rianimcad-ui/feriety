@@ -13,6 +13,7 @@ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:en
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;max-width:980px;margin:0 auto}
+body.wide{max-width:1400px}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--sf);z-index:10}
 header{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--sf);border-bottom:1px solid var(--bd);padding:10px 14px 0}
 .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -52,23 +53,59 @@ main{padding:12px 12px 40px}
 .wn{background:var(--warn);color:var(--warnx);border-radius:10px;padding:10px 12px;margin:10px 0;font-size:14px}
 .err{color:var(--hol);font-size:14px;min-height:20px}
 .auth{padding:40px 20px}
-.tw{overflow-x:auto;background:var(--sf);border:1px solid var(--bd);border-radius:12px}
+body.bgin::after{content:"";position:fixed;inset:0;background:url(sfondo.jpg) center/cover no-repeat;z-index:-1}
+body.bgin::before{background:transparent}
+body.bgin .auth{background:color-mix(in srgb,var(--sf) 90%,transparent);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-radius:16px;margin-top:6vh;padding:28px 22px;box-shadow:0 8px 30px rgba(20,60,110,.18)}
+.tw{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden}
 table{border-collapse:collapse;width:100%;font-size:14px}
 th,td{padding:8px 10px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
 th{background:var(--bg);font-size:12px;color:var(--mu)}
 .li{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--bd);font-size:14px}
 .tg{display:flex;gap:6px;margin:8px 0}
-.gr th,.gr td{text-align:center;padding:6px 4px;min-width:34px;font-size:12px}
-.gr .fc{position:sticky;left:0;background:var(--sf);text-align:left;min-width:120px;z-index:1;white-space:nowrap}
+/* ===== Griglia turno: tutto il mese in una sola pagina (nessuno scorrimento orizzontale) ===== */
+.ts{margin-bottom:14px}
+.cap{background:var(--tc);color:#fff;font-weight:700;padding:8px 12px;border-radius:12px 12px 0 0;text-transform:capitalize}
+.ts .tw{border-radius:0 0 12px 12px}
+.gr{table-layout:fixed}
+.gr th,.gr td{text-align:center;padding:5px 0;font-size:12px;overflow:hidden;border-right:1px solid var(--bd)}
+.gr th.fc,.gr td.fc{width:150px;text-align:left;padding:5px 8px;white-space:nowrap;text-overflow:ellipsis}
 .gr th.h{color:var(--hol)}
+.gr .wk{background:color-mix(in srgb,var(--hol) 9%,transparent)}
+.gr .chip{font-size:11px;padding:0 3px;border-radius:4px}
 .lv{background:var(--ac);color:var(--acx);font-weight:700}
 .gr tr.tm .fc{border-left:6px solid var(--tc);background:color-mix(in srgb,var(--tc) 12%,var(--sf))}
 .gr tr.tm .lv{background:var(--tc);color:#fff}
-.gr tr.band td{background:var(--tc);color:#fff;font-weight:700;text-align:left;border-top:4px solid var(--bg)}
-.gr tr.band .fc{background:var(--tc)}
+.pbar{margin-top:14px}
+@media (max-width:700px){
+.gr th.fc,.gr td.fc{width:72px;padding:3px 3px;font-size:10px}
+.gr td.fc .mu{display:none}
+.gr th,.gr td{font-size:8px;padding:3px 0}
+.gr .chip{font-size:8px;padding:0;border-radius:2px}
+main{padding:12px 6px 40px}
+}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:30;font-size:14px}
-</style></head><body><div id="app"></div>
-
+/* ===== Stampa: A4 orizzontale, un foglio per squadra ===== */
+@page{size:A4 landscape;margin:8mm}
+@media print{
+:root:root:root{--bg:#fff;--sf:#fff;--tx:#000;--mu:#333;--bd:#999;--hol:#b42318;
+--Mb:#fde7a8;--Mf:#6b4a00;--Pb:#ffd2b0;--Pf:#7a3300;--Nb:#c9d0f7;--Nf:#1f2a7a;--Sb:#ecd0f4;--Sf:#5a1d70;--Rb:#cfeedb;--Rf:#14532d;padding:0}
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body,body.wide{max-width:none;background:#fff;font-size:10pt}
+body::before,header,.npr,.toast,.ov,.yr,.wn{display:none!important}
+main{padding:0}
+.ts{margin:0}
+.ts+.ts{break-before:page;page-break-before:always}
+.cap{font-size:14pt;padding:3mm 4mm;border-radius:0}
+.ts .tw{border:0;border-radius:0;overflow:visible}
+.gr{font-size:9pt}
+.gr th,.gr td{font-size:9pt;padding:2.2mm 0;border:1px solid #999}
+.gr th.fc,.gr td.fc{width:50mm;font-size:10pt;padding:2.2mm 2mm}
+.gr td.fc .mu{display:inline;font-size:8pt}
+.gr .chip{font-size:9pt;padding:0 1mm}
+.gr thead{display:table-header-group}
+.gr tr{break-inside:avoid;page-break-inside:avoid}
+}
+</style><style id="ps"></style></head><body><div id="app"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 // ===== CONFIGURAZIONE (vedi GUIDA.md) =====
@@ -82,11 +119,15 @@ const MESI=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","ag
 const pad=n=>String(n).padStart(2,"0"),iso=(y,m,d)=>y+"-"+pad(m+1)+"-"+pad(d),fd=k=>k.split("-").reverse().join("/");
 const T=new Date(),today=iso(T.getFullYear(),T.getMonth(),T.getDate());
 let coord="";try{coord=localStorage.getItem("coord")||""}catch(e){}
-let sb=null,user=null,profs=[],reqs=[],tab="cal",sel=null,prof=false,mode="login",gt=null;
+let sb=null,user=null,profs=[],reqs=[],tab="cal",sel=null,prof=false,mode="login",gt=null,pt="all";
 let year=T.getFullYear()+((T.getDate()>=17&&T.getMonth()===11)?1:0),gm=T.getDate()>=17?(T.getMonth()+1)%12:T.getMonth();
-
+const ADM="rianimatione@gmail.com";let fmat="";
+const fhref=()=>"mailto:"+ADM+"?subject="+encodeURIComponent("Richiesta reset password - matricola "+fmat)+"&body="+encodeURIComponent("Buongiorno, richiedo il reset della password per la matricola "+fmat+".\nGrazie.");
+const genpw=()=>{const c="abcdefghjkmnpqrstuvwxyz23456789",a=crypto.getRandomValues(new Uint8Array(8));return[...a].map(x=>c[x%c.length]).join("")};
+const leap=y=>(y%4===0&&y%100!==0)||y%400===0;
+// Dal 1° marzo i turni slittano di uno, MA NON negli anni bisestili.
 function shift(team,y,m,d){const[ay,am,ad]=ANCHOR.split("-").map(Number);
-const n=Math.round((Date.UTC(y,m,d)-Date.UTC(ay,am-1,ad))/864e5);let x=0;const t0=Date.UTC(ay,am-1,ad),t1=Date.UTC(y,m,d);for(let yy=ay;yy<=y;yy++){const q=Date.UTC(yy,2,1);if(q>t0&&q<=t1)x++}return SH[(((n+x+TEAMS.indexOf(team))%5)+5)%5]}
+const n=Math.round((Date.UTC(y,m,d)-Date.UTC(ay,am-1,ad))/864e5);let x=0;const t0=Date.UTC(ay,am-1,ad),t1=Date.UTC(y,m,d);for(let yy=ay;yy<=y;yy++){const q=Date.UTC(yy,2,1);if(q>t0&&q<=t1&&!leap(yy))x++}return SH[(((n+x+TEAMS.indexOf(team))%5)+5)%5]}
 const hc0={};
 function hols(y){if(hc0[y])return hc0[y];const h={};const add=(m,d,n)=>h[m+"-"+d]=n;
 add(0,1,"Capodanno");add(0,6,"Epifania");add(3,25,"Festa della Liberazione");add(4,1,"Festa del Lavoro");add(5,2,"Festa della Repubblica");
@@ -100,134 +141,162 @@ function dl(k){const[y,m]=k.split("-").map(Number);let dy=y,dm=m-2;if(dm<0){dm=1
 function toast(t){const e=document.createElement("div");e.className="toast";e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),3000)}
 const forDate=(d,t)=>reqs.filter(r=>r.date===d&&r.team===(t||user.team));
 const emps=t=>profs.filter(p=>p.team===t).map(p=>({uid:p.id,name:p.name,mat:p.matricola})).sort((a,b)=>a.name.localeCompare(b.name));
-
 function render(){
- if(!user){const reg=mode==="reg";
-  $("#app").innerHTML=`<div class="auth"><h1>Ferie reparto</h1><p class="mu">Richieste di ferie e permessi in ospedale</p>
-  ${reg?`<input class="f1" id="an" placeholder="Nome e cognome" autocomplete="name">`:""}
-  <input class="f1" id="ae" placeholder="Numero di matricola" autocomplete="username">
-  ${reg?`<select class="f1" id="at">${TEAMS.map(t=>`<option value="${t}">Squadra ${t}</option>`).join("")}</select>`:""}
-  <input class="f1" id="ap" type="password" placeholder="Password" autocomplete="${reg?"new-password":"current-password"}">
-  <p class="err" id="err"></p><button class="pb" data-a="auth">${reg?"Registrati":"Accedi"}</button>
-  <button class="lk" data-a="mode">${reg?"Hai già un account? Accedi":"Primo accesso? Registrati"}</button></div>`;return}
- $("#app").innerHTML=`<header><div class="row"><h1>Ferie reparto</h1><span><button class="ib" data-a="prof">${esc(user.name.split(" ")[0])} · ${user.team}</button> <button class="ib" data-a="out">Esci</button></span></div>
- <div class="tabs"><button data-a="tab" data-v="cal" class="${tab==="cal"?"on":""}">Calendario</button><button data-a="tab" data-v="tbl" class="${tab==="tbl"?"on":""}">Griglia turno</button></div></header>
- <main>${tab==="cal"?cal():tbl()}</main>${sel?sheet(sel):""}${prof?profile():""}`}
-
+document.body.classList.toggle("wide",!!user&&tab==="tbl");document.body.classList.toggle("bgin",!user||user.must);
+if(!user&&mode==="forgot"){$("#app").innerHTML=`<div class="auth"><h1>Password dimenticata</h1>
+<p class="mu">Inserisci la tua matricola e poi invia la richiesta all’amministratore.</p>
+<input class="f1" id="fm" placeholder="Numero di matricola" value="${esc(fmat)}">
+<a class="pb" style="display:block;text-align:center;text-decoration:none" id="fl" href="${fhref()}">Invia email di richiesta di reset password all’indirizzo ${ADM}</a>
+<p class="mu">L’amministratore imposterà una password generica e te la invierà via email: al primo accesso dovrai sostituirla con una tua.</p>
+<button class="lk" data-a="back">Torna all’accesso</button></div>`;return}
+if(!user){const reg=mode==="reg";
+$("#app").innerHTML=`<div class="auth"><h1>Ferie reparto</h1><p class="mu">Richieste di ferie e permessi in ospedale</p>
+${reg?`<input class="f1" id="an" placeholder="Nome e cognome" autocomplete="name">`:""}
+<input class="f1" id="ae" placeholder="Numero di matricola" autocomplete="username">
+${reg?`<select class="f1" id="at">${TEAMS.map(t=>`<option value="${t}">Squadra ${t}</option>`).join("")}</select>`:""}
+<input class="f1" id="ap" type="password" placeholder="Password" autocomplete="${reg?"new-password":"current-password"}">
+<p class="err" id="err"></p><button class="pb" data-a="auth">${reg?"Registrati":"Accedi"}</button>
+<button class="lk" data-a="mode">${reg?"Hai già un account? Accedi":"Primo accesso? Registrati"}</button>
+${reg?"":`<button class="lk" data-a="forgot">Password dimenticata?</button>`}</div>`;return}
+if(user.must){$("#app").innerHTML=`<div class="auth"><h1>Scegli una nuova password</h1><p class="mu">Stai usando una password generica: sostituiscila con una tua per continuare.</p>
+<input class="f1" id="n1" type="password" placeholder="Nuova password (almeno 6 caratteri)" autocomplete="new-password">
+<input class="f1" id="n2" type="password" placeholder="Ripeti la nuova password" autocomplete="new-password">
+<p class="err" id="err"></p><button class="pb" data-a="newpw">Salva password</button><button class="lk" data-a="out">Esci</button></div>`;return}
+$("#app").innerHTML=`<header><div class="row"><h1>Ferie reparto</h1><span><button class="ib" data-a="prof">${esc(user.name.split(" ")[0])} · ${user.team}</button> <button class="ib" data-a="out">Esci</button></span></div>
+<div class="tabs"><button data-a="tab" data-v="cal" class="${tab==="cal"?"on":""}">Calendario</button><button data-a="tab" data-v="tbl" class="${tab==="tbl"?"on":""}">Griglia turno</button></div></header>
+<main>${tab==="cal"?cal():tbl()}</main>${sel?sheet(sel):""}${prof?profile():""}`}
 function cal(){
- let h=`<div class="yr"><button class="ib" data-a="yr" data-v="-1">‹</button><b>${year}</b><button class="ib" data-a="yr" data-v="1">›</button></div>
- <div class="leg">${SH.map(s=>`<span><span class="chip s${s}">${s}</span> ${NM[s]}</span>`).join(" ")}<span style="color:var(--hol)">● Festivo</span><span>● Tua richiesta</span><span>n = richieste della squadra (max ${MAX})</span><span>Giorni sfumati: termine scaduto (si chiede entro il 17 del mese prima)</span></div>`;
- const H=hols(year);
- for(let m=0;m<12;m++){
-  const off=(new Date(Date.UTC(year,m,1)).getUTCDay()+6)%7,nd=new Date(Date.UTC(year,m+1,0)).getUTCDate();
-  h+=`<section class="mon" id="m${m}"><h2>${MESI[m]} ${year}</h2><div class="g">${["L","M","M","G","V","S","D"].map(x=>`<div class="wd">${x}</div>`).join("")}`;
-  for(let i=0;i<off;i++)h+=`<div class="e"></div>`;
-  for(let d=1;d<=nd;d++){const k=iso(year,m,d),n=forDate(k).length,wd=(off+d-1)%7,s=shift(user.team,year,m,d);
-   const cl=["d",(H[m+"-"+d]||wd===6)?"h":"",k===today?"t":"",n>=MAX?"f":"",today>dl(k)?"x":"",forDate(k).some(r=>r.uid===user.uid)?"m":""].join(" ");
-   h+=`<button class="${cl}" data-a="day" data-v="${k}"><b>${d}</b><span class="chip s${s}">${s}</span>${n?`<span class="c">${n}</span>`:""}</button>`}
-  h+=`</div></section>`}
- return h}
-
+let h=`<div class="yr"><button class="ib" data-a="yr" data-v="-1">‹</button><b>${year}</b><button class="ib" data-a="yr" data-v="1">›</button></div>
+<div class="leg">${SH.map(s=>`<span><span class="chip s${s}">${s}</span> ${NM[s]}</span>`).join(" ")}<span style="color:var(--hol)">● Festivo</span><span>● Tua richiesta</span><span>n = richieste della squadra (max ${MAX})</span><span>Giorni sfumati: termine scaduto (si chiede entro il 17 del mese prima)</span></div>`;
+const H=hols(year);
+for(let m=0;m<12;m++){
+const off=(new Date(Date.UTC(year,m,1)).getUTCDay()+6)%7,nd=new Date(Date.UTC(year,m+1,0)).getUTCDate();
+h+=`<section class="mon" id="m${m}"><h2>${MESI[m]} ${year}</h2><div class="g">${["L","M","M","G","V","S","D"].map(x=>`<div class="wd">${x}</div>`).join("")}`;
+for(let i=0;i<off;i++)h+=`<div class="e"></div>`;
+for(let d=1;d<=nd;d++){const k=iso(year,m,d),n=forDate(k).length,wd=(off+d-1)%7,s=shift(user.team,year,m,d);
+const cl=["d",(H[m+"-"+d]||wd===6)?"h":"",k===today?"t":"",n>=MAX?"f":"",today>dl(k)?"x":"",forDate(k).some(r=>r.uid===user.uid)?"m":""].join(" ");
+h+=`<button class="${cl}" data-a="day" data-v="${k}"><b>${d}</b><span class="chip s${s}">${s}</span>${n?`<span class="c">${n}</span>`:""}</button>`}
+h+=`</div></section>`}
+return h}
 function sheet(k){
- const[y,m,d]=k.split("-").map(Number),H=hols(y)[(m-1)+"-"+d],list=forDate(k),mine=list.find(r=>r.uid===user.uid),full=list.length>=MAX,closed=today>dl(k);
- const dt=new Date(Date.UTC(y,m-1,d)).toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:"UTC"});
- const my=shift(user.team,y,m-1,d);
- return `<div class="ov" data-a="close"><div class="sh" data-a="keep"><div class="row"><h2>${dt}</h2><button class="ib" data-a="close">✕</button></div>
- ${H?`<p style="color:var(--hol);margin:2px 0"><b>${H}</b> (festivo)</p>`:""}
- <p>Il tuo turno: <span class="chip s${my}">${NM[my]}</span> ${my==="R"?`<span class="mu">il Riposo non si scala dalle ferie</span>`:""}</p>
- <div class="tg">${TEAMS.map(t=>{const s=shift(t,y,m-1,d);return`<span class="mu">${t}<br><span class="chip s${s}">${s}</span></span>`}).join("")}</div>
- <h2>Squadra ${user.team}: richieste (${list.length}/${MAX})</h2>
- ${list.length?list.map(r=>`<div class="li"><span>${esc(r.name)}${r.uid===user.uid?`<br><span class="mu">${esc(r.reason)}</span>`:""}</span>${r.uid===user.uid?`<button class="ib" data-a="del" data-v="${r.id}">Annulla</button>`:""}</div>`).join(""):`<p class="mu">Nessuna richiesta.</p>`}
- ${mine?`<p class="mu">Hai già una richiesta per questo giorno.</p>`
- :closed?`<div class="wn"><b>Termine scaduto.</b> Le richieste per ${MESI[m-1]} si chiudevano il 17 del mese precedente: contatta il coordinatore.</div>`
- :full?`<div class="wn"><b>Giornata al completo (${MAX}/${MAX}).</b> Non è possibile inserire altre richieste: comunica la tua richiesta al coordinatore.</div>`
- :`<select class="f1" id="rs">${MOT.map(x=>`<option>${x}</option>`).join("")}</select><button class="pb" data-a="add" data-v="${k}">Invia richiesta</button>`}
- </div></div>`}
-
+const[y,m,d]=k.split("-").map(Number),H=hols(y)[(m-1)+"-"+d],list=forDate(k),mine=list.find(r=>r.uid===user.uid),full=list.length>=MAX,closed=today>dl(k);
+const dt=new Date(Date.UTC(y,m-1,d)).toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:"UTC"});
+const my=shift(user.team,y,m-1,d);
+return `<div class="ov" data-a="close"><div class="sh" data-a="keep"><div class="row"><h2>${dt}</h2><button class="ib" data-a="close">✕</button></div>
+${H?`<p style="color:var(--hol);margin:2px 0"><b>${H}</b> (festivo)</p>`:""}
+<p>Il tuo turno: <span class="chip s${my}">${NM[my]}</span> ${my==="R"?`<span class="mu">il Riposo non si scala dalle ferie</span>`:""}</p>
+<div class="tg">${TEAMS.map(t=>{const s=shift(t,y,m-1,d);return`<span class="mu">${t}<br><span class="chip s${s}">${s}</span></span>`}).join("")}</div>
+<h2>Squadra ${user.team}: richieste (${list.length}/${MAX})</h2>
+${list.length?list.map(r=>`<div class="li"><span>${esc(r.name)}${r.uid===user.uid?`<br><span class="mu">${esc(r.reason)}</span>`:""}</span>${r.uid===user.uid?`<button class="ib" data-a="del" data-v="${r.id}">Annulla</button>`:""}</div>`).join(""):`<p class="mu">Nessuna richiesta.</p>`}
+${mine?`<p class="mu">Hai già una richiesta per questo giorno.</p>`
+:closed?`<div class="wn"><b>Termine scaduto.</b> Le richieste per ${MESI[m-1]} si chiudevano il 17 del mese precedente: contatta il coordinatore.</div>`
+:full?`<div class="wn"><b>Giornata al completo (${MAX}/${MAX}).</b> Non è possibile inserire altre richieste: comunica la tua richiesta al coordinatore.</div>`
+:`<select class="f1" id="rs">${MOT.map(x=>`<option>${x}</option>`).join("")}</select><input class="f1" id="rx" maxlength="80" placeholder="Specifica il motivo (causale obbligatoria)" style="display:none"><button class="pb" data-a="add" data-v="${k}">Invia richiesta</button>`}
+</div></div>`}
 const TC={A:"#1d4ed8",B:"#15803d",C:"#c2410c",D:"#7e22ce",E:"#be185d"};
 function txt(){const m=gm;let o="Richieste ferie e permessi - "+MESI[m]+" "+year+"\n";
 TEAMS.forEach(t=>{const L=reqs.filter(r=>r.team===t&&r.date.startsWith(year+"-"+pad(m+1))),by={};
 L.forEach(r=>{const n=r.name+" (matr. "+r.mat+")";(by[n]=by[n]||[]).push(r)});
 o+="\nSQUADRA "+t+"\n"+(L.length?Object.entries(by).map(([n,a])=>n+": "+a.sort((x,y)=>x.date<y.date?-1:1).map(r=>fd(r.date)+" ("+r.reason+")").join(", ")).join("\n"):"Nessuna richiesta.")});
 return o}
-
 function tbl(){const m=gm,nd=new Date(Date.UTC(year,m+1,0)).getUTCDate(),H=hols(year),dn=["D","L","M","M","G","V","S"],ds=[];
 for(let d=1;d<=nd;d++)ds.push({d,k:iso(year,m,d),w:new Date(Date.UTC(year,m,d)).getUTCDay()});
-const hc=x=>(H[m+"-"+x.d]||x.w===0)?"h":"",cd=dl(iso(year,m,1)),
+const off=x=>(H[m+"-"+x.d]||x.w===0),hc=x=>off(x)?"h wk":"",wk=x=>off(x)?"wk":"",cd=dl(iso(year,m,1)),
 ban=today===cd?`<div class="wn"><b>Oggi si chiude l’inserimento per ${MESI[m]}.</b> La tabella parte in automatico verso il coordinatore.</div>`:today>cd?`<div class="wn"><b>Inserimento per ${MESI[m]} chiuso.</b></div>`:"";
+const dh=`<tr><th class="fc">Dipendente</th>${ds.map(x=>`<th class="${hc(x)}">${dn[x.w]}<br>${x.d}</th>`).join("")}</tr>`;
 let body="";
 TEAMS.forEach(t=>{const E=emps(t),st=`class="tm" style="--tc:${TC[t]}"`;
- body+=`<tr class="tm band" style="--tc:${TC[t]}"><td class="fc">Squadra ${t} · ${E.length}</td><td colspan="${nd}"></td></tr>`;
- body+=`<tr ${st}><td class="fc mu">Turno</td>${ds.map(x=>{const s=shift(t,year,m,x.d);return`<td><span class="chip s${s}">${s}</span></td>`}).join("")}</tr>`;
- body+=E.length?E.map(e=>`<tr ${st}><td class="fc">${esc(e.name)} <span class="mu">${esc(e.mat)}</span></td>${ds.map(x=>{const r=reqs.find(q=>q.date===x.k&&q.uid===e.uid);return r?(r.uid===user.uid?`<td class="lv" title="${esc(r.reason)}">${esc(r.reason[0])}</td>`:`<td class="lv"></td>`):"<td></td>"}).join("")}</tr>`).join("")
- :`<tr ${st}><td class="fc mu" colspan="${nd+1}">Nessun dipendente registrato</td></tr>`;
- body+=`<tr ${st}><td class="fc"><b>Richieste</b></td>${ds.map(x=>{const n=forDate(x.k,t).length;return`<td style="${n>=MAX?"color:var(--hol);font-weight:700":""}">${n||""}</td>`}).join("")}</tr>`});
-return `<div class="yr"><button class="ib" data-a="yr" data-v="-1">‹</button><b>${year}</b><button class="ib" data-a="yr" data-v="1">›</button></div>
-${ban}<select class="f1" id="gm">${MESI.map((x,i)=>`<option value="${i}" ${i===m?"selected":""}>${x}</option>`).join("")}</select>
-<div class="tw"><table class="gr"><tr><th class="fc">Dipendente</th>${ds.map(x=>`<th class="${hc(x)}">${dn[x.w]}<br>${x.d}</th>`).join("")}</tr>${body}</table></div>
-<p class="mu">Ogni squadra ha il suo colore. Cella colorata = richiesta; il motivo lo vedi solo sulle tue. Massimo ${MAX} per squadra e per giornata.</p>
-<p class="mu">Invio manuale (di riserva) al coordinatore:</p>
+let rows=`<tr ${st}><td class="fc mu">Turno</td>${ds.map(x=>{const s=shift(t,year,m,x.d);return`<td class="${wk(x)}"><span class="chip s${s}">${s}</span></td>`}).join("")}</tr>`;
+rows+=E.length?E.map(e=>`<tr ${st}><td class="fc">${esc(e.name)} <span class="mu">${esc(e.mat)}</span></td>${ds.map(x=>{const r=reqs.find(q=>q.date===x.k&&q.uid===e.uid);return r?(r.uid===user.uid||user.adm||user.coord?`<td class="lv" title="${esc(r.reason)}">${esc(r.reason[0])}</td>`:`<td class="lv"></td>`):`<td class="${wk(x)}"></td>`}).join("")}</tr>`).join("")
+:`<tr ${st}><td class="fc mu" colspan="${nd+1}">Nessun dipendente registrato</td></tr>`;
+rows+=`<tr ${st}><td class="fc"><b>Richieste</b></td>${ds.map(x=>{const n=forDate(x.k,t).length;return`<td class="${wk(x)}" style="${n>=MAX?"color:var(--hol);font-weight:700":""}">${n||""}</td>`}).join("")}</tr>`;
+body+=`<section class="ts" data-t="${t}"><div class="cap" style="--tc:${TC[t]}">Squadra ${t} · ${MESI[m]} ${year} · ${E.length} dipendenti</div><div class="tw"><table class="gr"><thead>${dh}</thead><tbody>${rows}</tbody></table></div></section>`});
+return `<div class="yr npr"><button class="ib" data-a="yr" data-v="-1">‹</button><b>${year}</b><button class="ib" data-a="yr" data-v="1">›</button></div>
+<div class="npr">${ban}<select class="f1" id="gm">${MESI.map((x,i)=>`<option value="${i}" ${i===m?"selected":""}>${x}</option>`).join("")}</select></div>
+${body}
+<p class="mu npr">Ogni squadra ha il suo colore. Cella colorata = richiesta; ${user.adm||user.coord?"come amministratore/coordinatore vedi i motivi di tutti.":"il motivo lo vedi solo sulle tue."} Massimo ${MAX} per squadra e per giornata. Su smartphone ruota il telefono in orizzontale per leggere meglio.</p>
+<div class="npr pbar"><p class="mu">Stampa su foglio A4 in orizzontale, con tutti i giorni del mese:</p>
+<select class="f1" id="pr"><option value="all" ${pt==="all"?"selected":""}>Tutte le squadre (più fogli A4, uno per squadra)</option>${TEAMS.map(t=>`<option value="${t}" ${pt===t?"selected":""}>Solo squadra ${t} (1 foglio A4)</option>`).join("")}</select>
+<button class="pb" data-a="print">Stampa</button></div>
+<div class="npr"><p class="mu">Invio manuale (di riserva) al coordinatore:</p>
 <input class="f1" id="co" type="email" placeholder="Email del coordinatore" value="${esc(coord)}">
 <a class="pb" style="display:block;text-align:center;text-decoration:none" id="ml" target="_blank" rel="noopener" href="mailto:${encodeURIComponent(coord)}?subject=${encodeURIComponent("Richieste ferie "+MESI[m]+" "+year)}&body=${encodeURIComponent(txt())}">Invia al coordinatore</a>
-<button class="lk" data-a="copy">Copia tabella</button>`}
-
+<button class="lk" data-a="copy">Copia tabella</button></div>`}
 function profile(){return `<div class="ov" data-a="close"><div class="sh" data-a="keep"><div class="row"><h2>${esc(user.name)}</h2><button class="ib" data-a="close">✕</button></div>
- <p class="mu">Matricola ${esc(user.mat)}</p><label class="mu">Squadra</label><select class="f1" id="pt">${TEAMS.map(t=>`<option ${t===user.team?"selected":""}>${t}</option>`).join("")}</select>
- <button class="pb" data-a="save">Salva</button><button class="lk" data-a="out">Esci</button></div></div>`}
-
+<p class="mu">Matricola ${esc(user.mat)}</p><label class="mu">Squadra</label><select class="f1" id="pt">${TEAMS.map(t=>`<option ${t===user.team?"selected":""}>${t}</option>`).join("")}</select>
+${user.adm?`<hr><h2>Amministratore: reset password</h2><p class="mu">Imposta una password generica: l’utente dovrà cambiarla al primo accesso.</p>
+<input class="f1" id="rm" placeholder="Matricola dell’utente"><input class="f1" id="rp" value="${genpw()}"><button class="pb" data-a="reset">Reimposta password</button><div id="rr"></div><hr>`:""}
+<button class="pb" data-a="save">Salva</button><button class="lk" data-a="out">Esci</button></div></div>`}
 async function load(){if(!user)return;
- const a=await sb.from("profiles").select("*");if(a.data)profs=a.data;
- let rs=[],f=0;for(;;){const{data,error}=await sb.from("requests").select("*").gte("date",year+"-01-01").lte("date",year+"-12-31").range(f,f+999);
-  if(error)break;rs=rs.concat(data);if(data.length<1000)break;f+=1000}
- const m=new Map(profs.map(p=>[p.id,p]));
- reqs=rs.map(r=>{const p=m.get(r.user_id)||{};return{...r,uid:r.user_id,name:p.name||"?",mat:p.matricola||""}});render()}
+const a=await sb.from("profiles").select("*");if(a.data)profs=a.data;
+let rs=[],f=0;for(;;){const{data,error}=await sb.from("requests").select("*").gte("date",year+"-01-01").lte("date",year+"-12-31").range(f,f+999);
+if(error)break;rs=rs.concat(data);if(data.length<1000)break;f+=1000}
+const m=new Map(profs.map(p=>[p.id,p]));
+reqs=rs.map(r=>{const p=m.get(r.user_id)||{};return{...r,uid:r.user_id,name:p.name||"?",mat:p.matricola||""}});render()}
 async function start(){const{data:{session}}=await sb.auth.getSession();if(!session){user=null;render();return}
- const{data}=await sb.from("profiles").select("*").eq("id",session.user.id).single();
- if(!data){user=null;render();return}
- user={uid:data.id,name:data.name,team:data.team,mat:data.matricola};await load();
- if(year===T.getFullYear()){const e=document.getElementById("m"+T.getMonth());if(e&&tab==="cal")e.scrollIntoView()}}
+const{data}=await sb.from("profiles").select("*").eq("id",session.user.id).single();
+if(!data){user=null;render();return}
+user={uid:data.id,name:data.name,team:data.team,mat:data.matricola,adm:!!data.is_admin,coord:!!data.is_coord,must:!!data.must_change};await load();
+if(year===T.getFullYear()){const e=document.getElementById("m"+T.getMonth());if(e&&tab==="cal")e.scrollIntoView()}}
 async function auth(){const mat=$("#ae").value.trim().toLowerCase(),p=$("#ap").value,er=$("#err");let r;
- if(!mat||!p){er.textContent="Compila tutti i campi.";return}
- if(mode==="reg"){const n=$("#an").value.trim();
-  if(!n||!/^[a-z0-9]{3,}$/.test(mat)){er.textContent="Inserisci nome e matricola (almeno 3 caratteri, senza spazi).";return}
-  if(p.length<6){er.textContent="Password: almeno 6 caratteri.";return}
-  r=await sb.auth.signUp({email:mat+DOM,password:p,options:{data:{name:n,matricola:mat,team:$("#at").value}}})}
- else r=await sb.auth.signInWithPassword({email:mat+DOM,password:p});
- if(r.error){er.textContent=/registered|already/i.test(r.error.message)?"Matricola già registrata.":mode==="reg"?r.error.message:"Credenziali non corrette.";return}
- if(!r.data.session){er.textContent="Accesso non attivo: serve disattivare «Confirm email» in Supabase (vedi guida).";return}
- await start()}
+if(!mat||!p){er.textContent="Compila tutti i campi.";return}
+if(mode==="reg"){const n=$("#an").value.trim();
+if(!n||!/^[a-z0-9]{3,}$/.test(mat)){er.textContent="Inserisci nome e matricola (almeno 3 caratteri, senza spazi).";return}
+if(p.length<6){er.textContent="Password: almeno 6 caratteri.";return}
+r=await sb.auth.signUp({email:mat+DOM,password:p,options:{data:{name:n,matricola:mat,team:$("#at").value}}})}
+else r=await sb.auth.signInWithPassword({email:mat+DOM,password:p});
+if(r.error){er.textContent=/registered|already/i.test(r.error.message)?"Matricola già registrata.":mode==="reg"?r.error.message:"Credenziali non corrette.";return}
+if(!r.data.session){er.textContent="Accesso non attivo: serve disattivare «Confirm email» in Supabase (vedi guida).";return}
+await start()}
 async function addReq(k,reason){
- if(today>dl(k)){toast("Termine scaduto: contatta il coordinatore");return}
- const{error}=await sb.from("requests").insert({date:k,reason});
- if(error){const m=error.message||"";
-  toast(m.includes("LIMITE_3")?"Giornata al completo: comunica la richiesta al coordinatore":m.includes("TERMINE")?"Termine scaduto: contatta il coordinatore":error.code==="23505"?"Hai già una richiesta per questo giorno":"Errore: riprova");
-  await load();return}
- sel=null;toast("Richiesta inviata");await load()}
-
+if(today>dl(k)){toast("Termine scaduto: contatta il coordinatore");return}
+const{error}=await sb.from("requests").insert({date:k,reason});
+if(error){const m=error.message||"";
+toast(m.includes("LIMITE_3")?"Giornata al completo: comunica la richiesta al coordinatore":m.includes("TERMINE")?"Termine scaduto: contatta il coordinatore":error.code==="23505"?"Hai già una richiesta per questo giorno":"Errore: riprova");
+await load();return}
+sel=null;toast("Richiesta inviata");await load()}
+// Stampa: tutte le squadre (un foglio A4 orizzontale per squadra) oppure una sola squadra (1 foglio)
+function doPrint(){const ps=$("#ps");
+ps.textContent=pt==="all"?"":"@media print{.ts:not([data-t=\""+pt+"\"]){display:none!important}}";
+window.print()}
+window.addEventListener("afterprint",()=>{const ps=$("#ps");if(ps)ps.textContent=""});
 document.addEventListener("click",async ev=>{
- const el=ev.target.closest("[data-a]");if(!el)return;const a=el.dataset.a,v=el.dataset.v;
- if(a==="keep")return;
- if(a==="close"){if(ev.target.closest(".ib")||ev.target.classList.contains("ov")){sel=null;prof=false;render()}return}
- if(a==="mode"){mode=mode==="reg"?"login":"reg";render()}
- else if(a==="auth")auth();
- else if(a==="tab"){tab=v;render();scrollTo(0,0)}
- else if(a==="yr"){year+=+v;await load()}
- else if(a==="day"){sel=v;render()}
- else if(a==="add")addReq(v,$("#rs").value);
- else if(a==="del"){await sb.from("requests").delete().eq("id",v);await load()}
- else if(a==="prof"){prof=true;render()}
- else if(a==="save"){const t=$("#pt").value;const{error}=await sb.from("profiles").update({team:t}).eq("id",user.uid);
-  if(error)toast("Errore: riprova");else{user.team=t;gt=null;prof=false;await load()}}
- else if(a==="out"){await sb.auth.signOut();user=null;prof=false;sel=null;reqs=[];render()}
- else if(a==="copy"){try{await navigator.clipboard.writeText(txt());toast("Tabella copiata")}catch(e){toast("Copia non disponibile")}}
+const el=ev.target.closest("[data-a]");if(!el)return;const a=el.dataset.a,v=el.dataset.v;
+if(a==="keep")return;
+if(a==="close"){if(ev.target.closest(".ib")||ev.target.classList.contains("ov")){sel=null;prof=false;render()}return}
+if(a==="mode"){mode=mode==="reg"?"login":"reg";render()}
+else if(a==="auth")auth();
+else if(a==="tab"){tab=v;render();scrollTo(0,0)}
+else if(a==="yr"){year+=+v;await load()}
+else if(a==="day"){sel=v;render()}
+else if(a==="add"){let r=$("#rs").value;if(r==="Altro motivo"){const x=$("#rx").value.trim();if(x.length<3){toast("Specifica il motivo (causale)");return}r="Altro: "+x}addReq(v,r)}
+else if(a==="del"){await sb.from("requests").delete().eq("id",v);await load()}
+else if(a==="prof"){prof=true;render()}
+else if(a==="save"){const t=$("#pt").value;const{error}=await sb.from("profiles").update({team:t}).eq("id",user.uid);
+if(error)toast("Errore: riprova");else{user.team=t;gt=null;prof=false;await load()}}
+else if(a==="out"){await sb.auth.signOut();user=null;prof=false;sel=null;reqs=[];render()}
+else if(a==="print")doPrint();
+else if(a==="forgot"){mode="forgot";render()}
+else if(a==="back"){mode="login";render()}
+else if(a==="newpw"){const p1=$("#n1").value,p2=$("#n2").value,er=$("#err");
+if(p1.length<6){er.textContent="Password: almeno 6 caratteri.";return}
+if(p1!==p2){er.textContent="Le due password non coincidono.";return}
+const{error}=await sb.auth.updateUser({password:p1});
+if(error){er.textContent=/same|different/i.test(error.message)?"Scegli una password diversa da quella generica.":"Errore: riprova.";return}
+await sb.from("profiles").update({must_change:false}).eq("id",user.uid);user.must=false;toast("Password aggiornata");await load()}
+else if(a==="reset"){const mt=$("#rm").value.trim().toLowerCase(),pw=$("#rp").value;
+if(!mt||pw.length<6){toast("Inserisci matricola e password (min. 6 caratteri)");return}
+const{error}=await sb.rpc("admin_reset_password",{mat:mt,pwd:pw});
+if(error){toast(/NON_ADMIN/.test(error.message)?"Non autorizzato":"Errore: riprova");return}
+$("#rr").innerHTML=`<p class="mu">Password reimpostata per la matricola ${esc(mt)}.</p><a class="pb" style="display:block;text-align:center;text-decoration:none" href="mailto:?subject=${encodeURIComponent("Reset password Ferie reparto")}&body=${encodeURIComponent("Matricola: "+mt+"\nPassword generica: "+pw+"\nAl primo accesso dovrai sostituirla con una tua.")}">Apri email con la password generica</a>`}
+else if(a==="copy"){try{await navigator.clipboard.writeText(txt());toast("Tabella copiata")}catch(e){toast("Copia non disponibile")}}
 });
-document.addEventListener("change",ev=>{const i=ev.target.id;if(i==="gt"){gt=ev.target.value;render()}if(i==="gm"){gm=+ev.target.value;render()}});
-document.addEventListener("input",ev=>{if(ev.target.id==="co"){coord=ev.target.value;try{localStorage.setItem("coord",coord)}catch(e){}
- const m=$("#ml");if(m)m.href="mailto:"+encodeURIComponent(coord)+"?subject="+encodeURIComponent("Richieste ferie "+year)+"&body="+encodeURIComponent(txt())}});
-
+document.addEventListener("change",ev=>{const i=ev.target.id;if(i==="gt"){gt=ev.target.value;render()}if(i==="gm"){gm=+ev.target.value;render()}if(i==="pr"){pt=ev.target.value}if(i==="rs"){const x=$("#rx");if(x)x.style.display=ev.target.value==="Altro motivo"?"block":"none"}});
+document.addEventListener("input",ev=>{if(ev.target.id==="fm"){fmat=ev.target.value.trim();const l=$("#fl");if(l)l.href=fhref()}if(ev.target.id==="co"){coord=ev.target.value;try{localStorage.setItem("coord",coord)}catch(e){}
+const m=$("#ml");if(m)m.href="mailto:"+encodeURIComponent(coord)+"?subject="+encodeURIComponent("Richieste ferie "+year)+"&body="+encodeURIComponent(txt())}});
 (async()=>{
- if(SUPABASE_URL.startsWith("INCOLLA")){$("#app").innerHTML=`<div class="auth"><h1>Configurazione mancante</h1><p>Inserisci URL e chiave di Supabase in cima al file index.html (vedi GUIDA.md).</p></div>`;return}
- sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);render();await start();
- setInterval(()=>{if(user&&!sel&&!prof&&document.activeElement.tagName!=="INPUT"&&document.activeElement.tagName!=="SELECT")load()},30000)
+if(SUPABASE_URL.startsWith("INCOLLA")){$("#app").innerHTML=`<div class="auth"><h1>Configurazione mancante</h1><p>Inserisci URL e chiave di Supabase in cima al file index.html (vedi GUIDA.md).</p></div>`;return}
+sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);render();await start();
+setInterval(()=>{if(user&&!user.must&&!sel&&!prof&&document.activeElement.tagName!=="INPUT"&&document.activeElement.tagName!=="SELECT")load()},30000)
 })();
 </script></body></html>
