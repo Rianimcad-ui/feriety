@@ -1,0 +1,33 @@
+name: Invio richieste al coordinatore
+
+on:
+  schedule:
+    - cron: "0 7 18 * *" # il 18 di ogni mese, ore 07:00 UTC
+    - cron: "0 6 * * 1" # ogni lunedì: tiene attivo il database gratuito
+  workflow_dispatch: # prova manuale
+    inputs:
+      test_email:
+        description: "Email di PROVA (vuoto = invia al coordinatore)"
+        required: false
+        default: ""
+
+jobs:
+  invio:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Installa le librerie per il PDF
+        run: npm install --no-save --no-audit --no-fund jspdf@2.5.1 jspdf-autotable@3.8.2
+      - run: node invio.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          COORD_EMAIL: ${{ secrets.COORD_EMAIL }}
+          MITTENTE: ${{ secrets.MITTENTE }}
+          SCHED: ${{ github.event.schedule }}
+          FORCE: ${{ github.event_name == 'workflow_dispatch' && '1' || '' }}
+          TEST_EMAIL: ${{ github.event.inputs.test_email }}
