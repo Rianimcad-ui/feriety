@@ -31,11 +31,12 @@ const MESI = ["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","
 const now = new Date(), t = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
 const y = t.getUTCFullYear(), m = t.getUTCMonth(), p2 = n => String(n).padStart(2, "0");
 const a = `${y}-${p2(m + 1)}-01`, b = new Date(Date.UTC(y, m + 1, 0)).toISOString().slice(0, 10);
-const profs = await q("profiles?select=id,name,matricola,team");
+const profs = await q("profiles?select=*");
 const tOf = new Map(profs.map(p => [p.id, p.team]));
 let reqs = [], o = 0;
 for (;;) { const r = await q(`requests?select=date,reason,user_id,team&date=gte.${a}&date=lte.${b}&order=date&limit=1000&offset=${o}`); reqs = reqs.concat(r); if (r.length < 1000) break; o += 1000; }
-reqs.forEach(r => { r.team = r.team || tOf.get(r.user_id); });
+const oOf = new Map(profs.map(p => [p.id, !!p.oss]));
+reqs.forEach(r => { r.team = r.team || tOf.get(r.user_id); r.oss = !!oOf.get(r.user_id); });
 const emps = tm => profs.filter(p => p.team === tm).sort((x, z) => x.name.localeCompare(z.name));
 
 // ===== Corpo dell'email (tabella di testo, come prima) =====
@@ -43,7 +44,7 @@ let html = `<h2>Richieste ferie e permessi - ${MESI[m]} ${y}</h2><p>In allegato 
 for (const team of TEAMS) {
   const rows = emps(team).map(p => {
     const mine = reqs.filter(r => r.user_id === p.id); tot += mine.length;
-    return mine.length ? `<tr><td>${esc(p.matricola)}</td><td>${esc(p.name)}</td><td>${mine.map(r => r.date.split("-").reverse().join("/") + " (" + esc(r.reason) + ")").join(", ")}</td></tr>` : "";
+    return mine.length ? `<tr><td>${esc(p.matricola)}</td><td>${esc(p.name)}${p.oss ? " (OSS)" : ""}</td><td>${mine.map(r => r.date.split("-").reverse().join("/") + " (" + esc(r.reason) + ")").join(", ")}</td></tr>` : "";
   }).join("");
   html += `<h3>Squadra ${team}</h3>` + (rows ? `<table border="1" cellpadding="6" style="border-collapse:collapse"><tr><th>Matricola</th><th>Nome</th><th>Giorni richiesti</th></tr>${rows}</table>` : "<p>Nessuna richiesta.</p>");
 }
@@ -67,13 +68,13 @@ function buildPdf() {
     const head = [[{ content: "Dipendente", styles: { halign: "left" } }, ...days.map(x => ({ content: dn[x.w] + "\n" + x.d, styles: { textColor: x.off ? RED : BLACK, fillColor: x.off ? WK : WHITE } }))]];
     const lt = tint(tc, .12), body = [];
     body.push([{ content: "Turno", styles: { halign: "left", fillColor: lt, textColor: [80,80,80] } }, ...days.map(x => { const sh = shift(tm, y, m, x.d); return { content: sh, styles: { fillColor: rgb(SC[sh][0]), textColor: rgb(SC[sh][1]), fontStyle: "bold" } }; })]);
-    if (E.length) E.forEach(e => body.push([{ content: e.name + "  " + (e.matricola ?? ""), styles: { halign: "left", fillColor: lt } }, ...days.map(x => {
+    if (E.length) E.forEach(e => body.push([{ content: e.name + "  " + (e.matricola ?? "") + (e.oss ? "  OSS" : ""), styles: { halign: "left", fillColor: lt } }, ...days.map(x => {
       const r = reqs.find(q2 => q2.date === x.k && q2.user_id === e.id);
       return r ? { content: String(r.reason || "?")[0], styles: { fillColor: tc, textColor: WHITE, fontStyle: "bold" } } : { content: "", styles: { fillColor: x.off ? WK : WHITE } };
     })]));
     else body.push([{ content: "Nessun dipendente registrato", colSpan: nd + 1, styles: { halign: "left", fillColor: lt, textColor: [80,80,80] } }]);
-    body.push([{ content: "Richieste", styles: { halign: "left", fontStyle: "bold", fillColor: lt } }, ...days.map(x => { const n = reqs.filter(r => r.date === x.k && r.team === tm).length;
-      return { content: n ? String(n) : "", styles: { fillColor: x.off ? WK : WHITE, textColor: n >= MAX ? RED : BLACK, fontStyle: n >= MAX ? "bold" : "normal" } }; })]);
+    [["Infermieri", false], ["OSS", true]].forEach(([lb, o]) => body.push([{ content: lb + " (max " + MAX + ")", styles: { halign: "left", fontStyle: "bold", fillColor: lt } }, ...days.map(x => { const n = reqs.filter(r => r.date === x.k && r.team === tm && r.oss === o).length;
+      return { content: n ? String(n) : "", styles: { fillColor: x.off ? WK : WHITE, textColor: n >= MAX ? RED : BLACK, fontStyle: n >= MAX ? "bold" : "normal" } }; })]));
     const cs = { 0: { cellWidth: FC, halign: "left", cellPadding: { top: 1.6, bottom: 1.6, left: 2, right: 1 } } };
     for (let i = 1; i <= nd; i++) cs[i] = { cellWidth: (W - FC) / nd };
     autoTable(doc, { head, body, startY: 19, margin: { left: 8, right: 8, top: 8, bottom: 8 }, tableWidth: W, theme: "grid", columnStyles: cs,
