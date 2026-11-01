@@ -3,6 +3,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ferie reparto</title>
 <style>
+ // ===== CONFIGURAZIONE (vedi GUIDA.md) =====
+const SUPABASE_URL="https://pnovzqmipdctbacqfjmr.supabase.co",SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBub3Z6cW1pcGRjdGJhY3Fmam1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1MjcxOTksImV4cCI6MjEwOTEwMzE5OX0.Tm3iIaazj0BhUVQ4JnwO_MHx1IeoAmFRA6ZZZySQnCI",ANCHOR="2026-01-02",DOM="@reparto-ferie.com";
+// ==========================================
 :root{--bg:#f6f7f9;--sf:#fff;--tx:#1b2330;--mu:#667085;--bd:#e3e6eb;--ac:#0b6bcb;--acx:#fff;--hol:#d92d20;--warn:#fff3e0;--warnx:#8a4b00;
 --Mb:#fde7a8;--Mf:#6b4a00;--Pb:#ffd2b0;--Pf:#7a3300;--Nb:#c9d0f7;--Nf:#1f2a7a;--Sb:#ecd0f4;--Sf:#5a1d70;--Rb:#cfeedb;--Rf:#14532d;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -71,9 +74,7 @@ th{background:var(--bg);font-size:12px;color:var(--mu)}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
-// ===== CONFIGURAZIONE (vedi GUIDA.md) =====
-const SUPABASE_URL="https://pnovzqmipdctbacqfjmr.supabase.co",SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBub3Z6cW1pcGRjdGJhY3Fmam1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1MjcxOTksImV4cCI6MjEwOTEwMzE5OX0.Tm3iIaazj0BhUVQ4JnwO_MHx1IeoAmFRA6ZZZySQnCI",ANCHOR="2026-01-02",DOM="@reparto-ferie.com";
-// ==========================================
+ 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const SH=["M","P","N","S","R"],NM={M:"Mattina",P:"Pomeriggio",N:"Notte",S:"Smonto",R:"Riposo"},TEAMS=["A","B","C","D","E"],MAX=3;
