@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ferie reparto</title>
+<style>
+:root{--bg:#f6f7f9;--sf:#fff;--tx:#1b2330;--mu:#667085;--bd:#e3e6eb;--ac:#0b6bcb;--acx:#fff;--hol:#d92d20;--warn:#fff3e0;--warnx:#8a4b00;
+--Mb:#fde7a8;--Mf:#6b4a00;--Pb:#ffd2b0;--Pf:#7a3300;--Nb:#c9d0f7;--Nf:#1f2a7a;--Sb:#ecd0f4;--Sf:#5a1d70;--Rb:#cfeedb;--Rf:#14532d;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10141a;--sf:#1a2029;--tx:#e8ecf2;--mu:#9aa4b2;--bd:#2c3441;--ac:#5aa7ff;--acx:#06111f;--hol:#ff7a70;--warn:#3a2a10;--warnx:#ffcf8a;
+--Mb:#5a4510;--Mf:#ffe08a;--Pb:#5e3412;--Pf:#ffcba0;--Nb:#262f66;--Nf:#c3cbff;--Sb:#4a2358;--Sf:#f0cdfb;--Rb:#1d4a31;--Rf:#bff0d2}}
+:root[data-theme="dark"]{--bg:#10141a;--sf:#1a2029;--tx:#e8ecf2;--mu:#9aa4b2;--bd:#2c3441;--ac:#5aa7ff;--acx:#06111f;--hol:#ff7a70;--warn:#3a2a10;--warnx:#ffcf8a;
+--Mb:#5a4510;--Mf:#ffe08a;--Pb:#5e3412;--Pf:#ffcba0;--Nb:#262f66;--Nf:#c3cbff;--Sb:#4a2358;--Sf:#f0cdfb;--Rb:#1d4a31;--Rf:#bff0d2}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;max-width:980px;margin:0 auto}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--sf);z-index:10}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--sf);border-bottom:1px solid var(--bd);padding:10px 14px 0}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+h1{font-size:18px;margin:0}h2{font-size:16px;margin:0}
+.mu{color:var(--mu);font-size:13px}
+button,select,input{font:inherit;color:var(--tx)}
+button{cursor:pointer}
+.ib{background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:6px 12px}
+.tabs{display:flex;gap:4px;margin-top:8px}
+.tabs button{flex:1;background:none;border:0;border-bottom:3px solid transparent;padding:10px;color:var(--mu);font-weight:600}
+.tabs button.on{color:var(--ac);border-color:var(--ac)}
+main{padding:12px 12px 40px}
+.yr{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:8px}
+.yr b{font-size:20px}
+.leg{display:flex;flex-wrap:wrap;gap:6px;font-size:12px;margin-bottom:10px;align-items:center}
+.chip{display:inline-block;border-radius:6px;padding:1px 7px;font-weight:700;font-size:12px}
+.sM{background:var(--Mb);color:var(--Mf)}.sP{background:var(--Pb);color:var(--Pf)}.sN{background:var(--Nb);color:var(--Nf)}.sS{background:var(--Sb);color:var(--Sf)}.sR{background:var(--Rb);color:var(--Rf)}
+.mon{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:10px;margin-bottom:12px}
+.mon h2{text-transform:capitalize;margin-bottom:6px}
+.g{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.wd{font-size:11px;color:var(--mu);text-align:center}
+.d{position:relative;height:52px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);padding:2px 3px;text-align:left;display:flex;flex-direction:column;justify-content:space-between}
+.d b{font-size:13px}
+.d .chip{align-self:flex-start;font-size:11px;padding:0 5px}
+.d.h b,.d.h{color:var(--hol)}.d.h{border-color:var(--hol)}
+.d.t{outline:2px solid var(--ac)}
+.d.f{background:var(--warn)}.d.x{opacity:.55}.auth{max-width:420px;margin:0 auto}
+.d .c{position:absolute;top:2px;right:3px;font-size:10px;color:var(--mu)}
+.d.m::after{content:"";position:absolute;right:4px;bottom:5px;width:8px;height:8px;border-radius:50%;background:var(--ac)}
+.e{visibility:hidden}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sh{background:var(--sf);width:100%;max-width:520px;border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));max-height:85vh;overflow:auto}
+.sh h2{text-transform:capitalize;font-size:18px}
+.f1{width:100%;padding:11px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);margin:6px 0}
+.pb{width:100%;background:var(--ac);color:var(--acx);border:0;border-radius:12px;padding:13px;font-weight:700;margin-top:8px}
+.lk{background:none;border:0;color:var(--ac);padding:8px;width:100%}
+.wn{background:var(--warn);color:var(--warnx);border-radius:10px;padding:10px 12px;margin:10px 0;font-size:14px}
+.err{color:var(--hol);font-size:14px;min-height:20px}
+.auth{padding:40px 20px}
+.tw{overflow-x:auto;background:var(--sf);border:1px solid var(--bd);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
+th{background:var(--bg);font-size:12px;color:var(--mu)}
+.li{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--bd);font-size:14px}
+.tg{display:flex;gap:6px;margin:8px 0}
+.gr th,.gr td{text-align:center;padding:6px 4px;min-width:34px;font-size:12px}
+.gr .fc{position:sticky;left:0;background:var(--sf);text-align:left;min-width:120px;z-index:1;white-space:nowrap}
+.gr th.h{color:var(--hol)}
+.lv{background:var(--ac);color:var(--acx);font-weight:700}
+.gr tr.tm .fc{border-left:6px solid var(--tc);background:color-mix(in srgb,var(--tc) 12%,var(--sf))}
+.gr tr.tm .lv{background:var(--tc);color:#fff}
+.gr tr.band td{background:var(--tc);color:#fff;font-weight:700;text-align:left;border-top:4px solid var(--bg)}
+.gr tr.band .fc{background:var(--tc)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:30;font-size:14px}
+</style></head><body><div id="app"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+// ===== CONFIGURAZIONE (vedi GUIDA.md) =====
+const SUPABASE_URL="INCOLLA_URL_PROGETTO",SUPABASE_KEY="INCOLLA_CHIAVE_ANON",ANCHOR="2026-01-01",DOM="@reparto-ferie.com";
+// ==========================================
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const SH=["M","P","N","S","R"],NM={M:"Mattina",P:"Pomeriggio",N:"Notte",S:"Smonto",R:"Riposo"},TEAMS=["A","B","C","D","E"],MAX=3;
+const MOT=["Ferie","Permesso retribuito","Legge 104","Malattia figlio","Visita medica","Lutto","Studio / esame","Altro motivo"];
+const MESI=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
+const pad=n=>String(n).padStart(2,"0"),iso=(y,m,d)=>y+"-"+pad(m+1)+"-"+pad(d),fd=k=>k.split("-").reverse().join("/");
+const T=new Date(),today=iso(T.getFullYear(),T.getMonth(),T.getDate());
+let coord="";try{coord=localStorage.getItem("coord")||""}catch(e){}
+let sb=null,user=null,profs=[],reqs=[],tab="cal",sel=null,prof=false,mode="login",gt=null;
+let year=T.getFullYear()+((T.getDate()>=17&&T.getMonth()===11)?1:0),gm=T.getDate()>=17?(T.getMonth()+1)%12:T.getMonth();
+
+function shift(team,y,m,d){const[ay,am,ad]=ANCHOR.split("-").map(Number);
+const n=Math.round((Date.UTC(y,m,d)-Date.UTC(ay,am-1,ad))/864e5);let x=0;const t0=Date.UTC(ay,am-1,ad),t1=Date.UTC(y,m,d);for(let yy=ay;yy<=y;yy++){const q=Date.UTC(yy,2,1);if(q>t0&&q<=t1)x++}return SH[(((n+x+TEAMS.indexOf(team))%5)+5)%5]}
+const hc0={};
+function hols(y){if(hc0[y])return hc0[y];const h={};const add=(m,d,n)=>h[m+"-"+d]=n;
+add(0,1,"Capodanno");add(0,6,"Epifania");add(3,25,"Festa della Liberazione");add(4,1,"Festa del Lavoro");add(5,2,"Festa della Repubblica");
+add(7,15,"Ferragosto");add(10,1,"Ognissanti");add(11,8,"Immacolata Concezione");add(11,25,"Natale");add(11,26,"Santo Stefano");
+const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),
+hh=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-hh-k)%7,mm=Math.floor((a+11*hh+22*l)/451),
+mo=Math.floor((hh+l-7*mm+114)/31),da=((hh+l-7*mm+114)%31)+1;
+add(mo-1,da,"Pasqua");const p=new Date(Date.UTC(y,mo-1,da+1));add(p.getUTCMonth(),p.getUTCDate(),"Lunedì dell’Angelo");
+return hc0[y]=h}
+function dl(k){const[y,m]=k.split("-").map(Number);let dy=y,dm=m-2;if(dm<0){dm=11;dy--}return iso(dy,dm,17)}
+function toast(t){const e=document.createElement("div");e.className="toast";e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),3000)}
+const forDate=(d,t)=>reqs.filter(r=>r.date===d&&r.team===(t||user.team));
+const emps=t=>profs.filter(p=>p.team===t).map(p=>({uid:p.id,name:p.name,mat:p.matricola})).sort((a,b)=>a.name.localeCompare(b.name));
+
+function render(){
+ if(!user){const reg=mode==="reg";
+  $("#app").innerHTML=`<div class="auth"><h1>Ferie reparto</h1><p class="mu">Richieste di ferie e permessi in ospedale</p>
+  ${reg?`<input class="f1" id="an" placeholder="Nome e cognome" autocomplete="name">`:""}
+  <input class="f1" id="ae" placeholder="Numero di matricola" autocomplete="username">
+  ${reg?`<select class="f1" id="at">${TEAMS.map(t=>`<option value="${t}">Squadra ${t}</option>`).join("")}</select>`:""}
+  <input class="f1" id="ap" type="password" placeholder="Password" autocomplete="${reg?"new-password":"current-password"}">
+  <p class="err" id="err"></p><button class="pb" data-a="auth">${reg?"Registrati":"Accedi"}</button>
+  <button class="lk" data-a="mode">${reg?"Hai già un account? Accedi":"Primo accesso? Registrati"}</button></div>`;return}
+ $("#app").innerHTML=`<header><div class="row"><h1>Ferie reparto</h1><span><button class="ib" data-a="prof">${esc(user.name.split(" ")[0])} · ${user.team}</button> <button class="ib" data-a="out">Esci</button></span></div>
+ <div class="tabs"><button data-a="tab" data-v="cal" class="${tab==="cal"?"on":""}">Calendario</button><button data-a="tab" data-v="tbl" class="${tab==="tbl"?"on":""}">Griglia turno</button></div></header>
+ <main>${tab==="cal"?cal():tbl()}</main>${sel?sheet(sel):""}${prof?profile():""}`}
+
+function cal(){
+ let h=`<div class="yr"><button class="ib" data-a="yr" data-v="-1">‹</button><b>${year}</b><button class="ib" data-a="yr" data-v="1">›</button></div>
+ <div class="leg">${SH.map(s=>`<span><span class="chip s${s}">${s}</span> ${NM[s]}</span>`).join(" ")}<span style="color:var(--hol)">● Festivo</span><span>● Tua richiesta</span><span>n = richieste della squadra (max ${MAX})</span><span>Giorni sfumati: termine scaduto (si chiede entro il 17 del mese prima)</span></div>`;
+ const H=hols(year);
+ for(let m=0;m<12;m++){
+  const off=(new Date(Date.UTC(year,m,1)).getUTCDay()+6)%7,nd=new Date(Date.UTC(year,m+1,0)).getUTCDate();
+  h+=`<section class="mon" id="m${m}"><h2>${MESI[m]} ${year}</h2><div class="g">${["L","M","M","G","V","S","D"].map(x=>`<div class="wd">${x}</div>`).join("")}`;
+  for(let i=0;i<off;i++)h+=`<div class="e"></div>`;
+  for(let d=1;d<=nd;d++){const k=iso(year,m,d),n=forDate(k).length,wd=(off+d-1)%7,s=shift(user.team,year,m,d);
+   const cl=["d",(H[m+"-"+d]||wd===6)?"h":"",k===today?"t":"",n>=MAX?"f":"",today>dl(k)?"x":"",forDate(k).some(r=>r.uid===user.uid)?"m":""].join(" ");
+   h+=`<button class="${cl}" data-a="day" data-v="${k}"><b>${d}</b><span class="chip s${s}">${s}</span>${n?`<span class="c">${n}</span>`:""}</button>`}
+  h+=`</div></section>`}
+ return h}
+
+function sheet(k){
+ const[y,m,d]=k.split("-").map(Number),H=hols(y)[(m-1)+"-"+d],list=forDate(k),mine=list.find(r=>r.uid===user.uid),full=list.length>=MAX,closed=today>dl(k);
+ const dt=new Date(Date.UTC(y,m-1,d)).toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:"UTC"});
+ const my=shift(user.team,y,m-1,d);
+ return `<div class="ov" data-a="close"><div class="sh" data-a="keep"><div class="row"><h2>${dt}</h2><button class="ib" data-a="close">✕</button></div>
+ ${H?`<p style="color:var(--hol);margin:2px 0"><b>${H}</b> (festivo)</p>`:""}
+ <p>Il tuo turno: <span class="chip s${my}">${NM[my]}</span> ${my==="R"?`<span class="mu">il Riposo non si scala dalle ferie</span>`:""}</p>
+ <div class="tg">${TEAMS.map(t=>{const s=shift(t,y,m-1,d);return`<span class="mu">${t}<br><span class="chip s${s}">${s}</span></span>`}).join("")}</div>
+ <h2>Squadra ${user.team}: richieste (${list.length}/${MAX})</h2>
+ ${list.length?list.map(r=>`<div class="li"><span>${esc(r.name)}${r.uid===user.uid?`<br><span class="mu">${esc(r.reason)}</span>`:""}</span>${r.uid===user.uid?`<button class="ib" data-a="del" data-v="${r.id}">Annulla</button>`:""}</div>`).join(""):`<p class="mu">Nessuna richiesta.</p>`}
+ ${mine?`<p class="mu">Hai già una richiesta per questo giorno.</p>`
+ :closed?`<div class="wn"><b>Termine scaduto.</b> Le richieste per ${MESI[m-1]} si chiudevano il 17 del mese precedente: contatta il coordinatore.</div>`
+ :full?`<div class="wn"><b>Giornata al completo (${MAX}/${MAX}).</b> Non è possibile inserire altre richieste: comunica la tua richiesta al coordinatore.</div>`
+ :`<select class="f1" id="rs">${MOT.map(x=>`<option>${x}</option>`).join("")}</select><button class="pb" data-a="add" data-v="${k}">Invia richiesta</button>`}
+ </div></div>`}
+
+const TC={A:"#1d4ed8",B:"#15803d",C:"#c2410c",D:"#7e22ce",E:"#be185d"};
+function txt(){const m=gm;let o="Richieste ferie e permessi - "+MESI[m]+" "+year+"\n";
+TEAMS.forEach(t=>{const L=reqs.filter(r=>r.team===t&&r.date.startsWith(year+"-"+pad(m+1))),by={};
+L.forEach(r=>{const n=r.name+" (matr. "+r.mat+")";(by[n]=by[n]||[]).push(r)});
+o+="\nSQUADRA "+t+"\n"+(L.length?Object.entries(by).map(([n,a])=>n+": "+a.sort((x,y)=>x.date<y.date?-1:1).map(r=>fd(r.date)+" ("+r.reason+")").join(", ")).join("\n"):"Nessuna richiesta.")});
+return o}
+
+function tbl(){const m=gm,nd=new Date(Date.UTC(year,m+1,0)).getUTCDate(),H=hols(year),dn=["D","L","M","M","G","V","S"],ds=[];
+for(let d=1;d<=nd;d++)ds.push({d,k:iso(year,m,d),w:new Date(Date.UTC(year,m,d)).getUTCDay()});
+const hc=x=>(H[m+"-"+x.d]||x.w===0)?"h":"",cd=dl(iso(year,m,1)),
+ban=today===cd?`<div class="wn"><b>Oggi si chiude l’inserimento per ${MESI[m]}.</b> La tabella parte in automatico verso il coordinatore.</div>`:today>cd?`<div class="wn"><b>Inserimento per ${MESI[m]} chiuso.</b></div>`:"";
+let body="";
+TEAMS.forEach(t=>{const E=emps(t),st=`class="tm" style="--tc:${TC[t]}"`;
+ body+=`<tr class="tm band" style="--tc:${TC[t]}"><td class="fc">Squadra ${t} · ${E.length}</td><td colspan="${nd}"></td></tr>`;
+ body+=`<tr ${st}><td class="fc mu">Turno</td>${ds.map(x=>{const s=shift(t,year,m,x.d);return`<td><span class="chip s${s}">${s}</span></td>`}).join("")}</tr>`;
+ body+=E.length?E.map(e=>`<tr ${st}><td class="fc">${esc(e.name)} <span class="mu">${esc(e.mat)}</span></td>${ds.map(x=>{const r=reqs.find(q=>q.date===x.k&&q.uid===e.uid);return r?(r.uid===user.uid?`<td class="lv" title="${esc(r.reason)}">${esc(r.reason[0])}</td>`:`<td class="lv"></td>`):"<td></td>"}).join("")}</tr>`).join("")
+ :`<tr ${st}><td class="fc mu" colspan="${nd+1}">Nessun dipendente registrato</td></tr>`;
+ body+=`<tr ${st}><td class="fc"><b>Richieste</b></td>${ds.map(x=>{const n=forDate(x.k,t).length;return`<td style="${n>=MAX?"color:var(--hol);font-weight:700":""}">${n||""}</td>`}).join("")}</tr>`});
+return `<div class="yr"><button class="ib" data-a="yr" data-v="-1">‹</button><b>${year}</b><button class="ib" data-a="yr" data-v="1">›</button></div>
+${ban}<select class="f1" id="gm">${MESI.map((x,i)=>`<option value="${i}" ${i===m?"selected":""}>${x}</option>`).join("")}</select>
+<div class="tw"><table class="gr"><tr><th class="fc">Dipendente</th>${ds.map(x=>`<th class="${hc(x)}">${dn[x.w]}<br>${x.d}</th>`).join("")}</tr>${body}</table></div>
+<p class="mu">Ogni squadra ha il suo colore. Cella colorata = richiesta; il motivo lo vedi solo sulle tue. Massimo ${MAX} per squadra e per giornata.</p>
+<p class="mu">Invio manuale (di riserva) al coordinatore:</p>
+<input class="f1" id="co" type="email" placeholder="Email del coordinatore" value="${esc(coord)}">
+<a class="pb" style="display:block;text-align:center;text-decoration:none" id="ml" target="_blank" rel="noopener" href="mailto:${encodeURIComponent(coord)}?subject=${encodeURIComponent("Richieste ferie "+MESI[m]+" "+year)}&body=${encodeURIComponent(txt())}">Invia al coordinatore</a>
+<button class="lk" data-a="copy">Copia tabella</button>`}
+
+function profile(){return `<div class="ov" data-a="close"><div class="sh" data-a="keep"><div class="row"><h2>${esc(user.name)}</h2><button class="ib" data-a="close">✕</button></div>
+ <p class="mu">Matricola ${esc(user.mat)}</p><label class="mu">Squadra</label><select class="f1" id="pt">${TEAMS.map(t=>`<option ${t===user.team?"selected":""}>${t}</option>`).join("")}</select>
+ <button class="pb" data-a="save">Salva</button><button class="lk" data-a="out">Esci</button></div></div>`}
+
+async function load(){if(!user)return;
+ const a=await sb.from("profiles").select("*");if(a.data)profs=a.data;
+ let rs=[],f=0;for(;;){const{data,error}=await sb.from("requests").select("*").gte("date",year+"-01-01").lte("date",year+"-12-31").range(f,f+999);
+  if(error)break;rs=rs.concat(data);if(data.length<1000)break;f+=1000}
+ const m=new Map(profs.map(p=>[p.id,p]));
+ reqs=rs.map(r=>{const p=m.get(r.user_id)||{};return{...r,uid:r.user_id,name:p.name||"?",mat:p.matricola||""}});render()}
+async function start(){const{data:{session}}=await sb.auth.getSession();if(!session){user=null;render();return}
+ const{data}=await sb.from("profiles").select("*").eq("id",session.user.id).single();
+ if(!data){user=null;render();return}
+ user={uid:data.id,name:data.name,team:data.team,mat:data.matricola};await load();
+ if(year===T.getFullYear()){const e=document.getElementById("m"+T.getMonth());if(e&&tab==="cal")e.scrollIntoView()}}
+async function auth(){const mat=$("#ae").value.trim().toLowerCase(),p=$("#ap").value,er=$("#err");let r;
+ if(!mat||!p){er.textContent="Compila tutti i campi.";return}
+ if(mode==="reg"){const n=$("#an").value.trim();
+  if(!n||!/^[a-z0-9]{3,}$/.test(mat)){er.textContent="Inserisci nome e matricola (almeno 3 caratteri, senza spazi).";return}
+  if(p.length<6){er.textContent="Password: almeno 6 caratteri.";return}
+  r=await sb.auth.signUp({email:mat+DOM,password:p,options:{data:{name:n,matricola:mat,team:$("#at").value}}})}
+ else r=await sb.auth.signInWithPassword({email:mat+DOM,password:p});
+ if(r.error){er.textContent=/registered|already/i.test(r.error.message)?"Matricola già registrata.":mode==="reg"?r.error.message:"Credenziali non corrette.";return}
+ if(!r.data.session){er.textContent="Accesso non attivo: serve disattivare «Confirm email» in Supabase (vedi guida).";return}
+ await start()}
+async function addReq(k,reason){
+ if(today>dl(k)){toast("Termine scaduto: contatta il coordinatore");return}
+ const{error}=await sb.from("requests").insert({date:k,reason});
+ if(error){const m=error.message||"";
+  toast(m.includes("LIMITE_3")?"Giornata al completo: comunica la richiesta al coordinatore":m.includes("TERMINE")?"Termine scaduto: contatta il coordinatore":error.code==="23505"?"Hai già una richiesta per questo giorno":"Errore: riprova");
+  await load();return}
+ sel=null;toast("Richiesta inviata");await load()}
+
+document.addEventListener("click",async ev=>{
+ const el=ev.target.closest("[data-a]");if(!el)return;const a=el.dataset.a,v=el.dataset.v;
+ if(a==="keep")return;
+ if(a==="close"){if(ev.target.closest(".ib")||ev.target.classList.contains("ov")){sel=null;prof=false;render()}return}
+ if(a==="mode"){mode=mode==="reg"?"login":"reg";render()}
+ else if(a==="auth")auth();
+ else if(a==="tab"){tab=v;render();scrollTo(0,0)}
+ else if(a==="yr"){year+=+v;await load()}
+ else if(a==="day"){sel=v;render()}
+ else if(a==="add")addReq(v,$("#rs").value);
+ else if(a==="del"){await sb.from("requests").delete().eq("id",v);await load()}
+ else if(a==="prof"){prof=true;render()}
+ else if(a==="save"){const t=$("#pt").value;const{error}=await sb.from("profiles").update({team:t}).eq("id",user.uid);
+  if(error)toast("Errore: riprova");else{user.team=t;gt=null;prof=false;await load()}}
+ else if(a==="out"){await sb.auth.signOut();user=null;prof=false;sel=null;reqs=[];render()}
+ else if(a==="copy"){try{await navigator.clipboard.writeText(txt());toast("Tabella copiata")}catch(e){toast("Copia non disponibile")}}
+});
+document.addEventListener("change",ev=>{const i=ev.target.id;if(i==="gt"){gt=ev.target.value;render()}if(i==="gm"){gm=+ev.target.value;render()}});
+document.addEventListener("input",ev=>{if(ev.target.id==="co"){coord=ev.target.value;try{localStorage.setItem("coord",coord)}catch(e){}
+ const m=$("#ml");if(m)m.href="mailto:"+encodeURIComponent(coord)+"?subject="+encodeURIComponent("Richieste ferie "+year)+"&body="+encodeURIComponent(txt())}});
+
+(async()=>{
+ if(SUPABASE_URL.startsWith("INCOLLA")){$("#app").innerHTML=`<div class="auth"><h1>Configurazione mancante</h1><p>Inserisci URL e chiave di Supabase in cima al file index.html (vedi GUIDA.md).</p></div>`;return}
+ sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);render();await start();
+ setInterval(()=>{if(user&&!sel&&!prof&&document.activeElement.tagName!=="INPUT"&&document.activeElement.tagName!=="SELECT")load()},30000)
+})();
+</script></body></html>
