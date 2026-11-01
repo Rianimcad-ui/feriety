@@ -1,0 +1,23 @@
+name: Invio richieste al coordinatore
+on:
+  schedule:
+    - cron: "0 7 17 * *"   # il 17 di ogni mese, ore 07:00 UTC
+    - cron: "0 6 * * 1"    # ogni lunedì: tiene attivo il database gratuito
+  workflow_dispatch:        # prova manuale
+jobs:
+  invio:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node invio.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          COORD_EMAIL: ${{ secrets.COORD_EMAIL }}
+          MITTENTE: ${{ secrets.MITTENTE }}
+          SCHED: ${{ github.event.schedule }}
+          FORCE: ${{ github.event_name == 'workflow_dispatch' && '1' || '' }}
