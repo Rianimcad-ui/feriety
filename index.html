@@ -356,9 +356,7 @@ if(SUPABASE_URL.startsWith("INCOLLA")){$("#app").innerHTML=`<div class="auth"><h
 sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);render();await start();
 setInterval(()=>{if(user&&!user.must&&!sel&&!prof&&document.activeElement.tagName!=="INPUT"&&document.activeElement.tagName!=="SELECT")load()},30000)
 })();  
-  <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js');
   }
-</script>
 </script></body></html>
