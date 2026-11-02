@@ -124,7 +124,7 @@ const SUPABASE_URL="https://pnovzqmipdctbacqfjmr.supabase.co",SUPABASE_KEY="eyJh
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const SH=["M","P","N","S","R"],NM={M:"Mattina",P:"Pomeriggio",N:"Notte",S:"Smonto",R:"Riposo"},TEAMS=["A","B","C","D","E","MT"],MAX=3;
-const MOT=["Ferie","Permesso retribuito","Legge 104","Malattia figlio","Visita medica","Lutto","Studio / esame","Altro motivo"];
+const MOT=["Ferie","37 Art","Legge 104","Malattia","40 Art","Eso","Studio / esame","Altro motivo"];
 const MESI=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
 const pad=n=>String(n).padStart(2,"0"),iso=(y,m,d)=>y+"-"+pad(m+1)+"-"+pad(d),fd=k=>k.split("-").reverse().join("/");
 const T=new Date(),today=iso(T.getFullYear(),T.getMonth(),T.getDate());
