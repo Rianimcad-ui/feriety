@@ -82,7 +82,7 @@ th{background:var(--bg);font-size:12px;color:var(--mu)}
 .gr th.h{color:var(--hol)}
 .gr .wk{background:color-mix(in srgb,var(--hol) 9%,transparent)}
 .gr .chip{font-size:11px;padding:0 3px;border-radius:4px}
-.lv{background:var(--ac);color:var(--acx);font-weight:700}
+.lv{background:var(--ac);color:var(--acx);font-weight:700;white-space:nowrap;letter-spacing:-.3px}
 .gr tr.tm .fc{border-left:6px solid var(--tc);background:color-mix(in srgb,var(--tc) 12%,var(--sf))}
 .gr tr.tm .lv{background:var(--tc);color:#fff}
 .pbar{margin-top:14px}
@@ -91,6 +91,7 @@ th{background:var(--bg);font-size:12px;color:var(--mu)}
 .gr td.fc .mu{display:none}
 .gr th,.gr td{font-size:8px;padding:3px 0}
 .gr .chip{font-size:8px;padding:0;border-radius:2px}
+.lv{font-size:7px}    
 main{padding:12px 6px 40px}
 }
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:30;font-size:14px}
@@ -356,8 +357,6 @@ if(SUPABASE_URL.startsWith("INCOLLA")){$("#app").innerHTML=`<div class="auth"><h
 sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);render();await start();
 setInterval(()=>{if(user&&!user.must&&!sel&&!prof&&document.activeElement.tagName!=="INPUT"&&document.activeElement.tagName!=="SELECT")load()},30000)
 })();
-.lv{background:var(--ac);color:var(--acx);font-weight:700;white-space:nowrap;letter-spacing:-.3px}
-.lv{font-size:7px}  
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js');
   }
