@@ -221,7 +221,7 @@ const dh=`<tr><th class="fc">Dipendente</th>${ds.map(x=>`<th class="${hc(x)}">${
 let body="";
 TEAMS.forEach(t=>{const E=emps(t),st=`class="tm" style="--tc:${TC[t]}"`;
 let rows=`<tr ${st}><td class="fc mu">Turno</td>${ds.map(x=>{const s=shift(t,year,m,x.d);return`<td class="${wk(x)}"><span class="chip s${s}">${s}</span></td>`}).join("")}</tr>`;
-rows+=E.length?E.map(e=>`<tr ${st}><td class="fc">${esc(e.name)} <span class="mu">${esc(e.mat)}</span>${e.oss?` <span class="mu"><b>OSS</b></span>`:""}</td>${ds.map(x=>{const r=reqs.find(q=>q.date===x.k&&q.uid===e.uid);return r?(r.uid===user.uid||user.adm||user.coord?`<td class="lv" title="${esc(r.reason)}">${esc(r.reason[0])}</td>`:`<td class="lv"></td>`):`<td class="${wk(x)}"></td>`}).join("")}</tr>`).join("")
+rows+=E.length?E.map(e=>`<tr ${st}><td class="fc">${esc(e.name)} <span class="mu">${esc(e.mat)}</span>${e.oss?` <span class="mu"><b>OSS</b></span>`:""}</td>${ds.map(x=>{const r=reqs.find(q=>q.date===x.k&&q.uid===e.uid);return r?(r.uid===user.uid||user.adm||user.coord?`<td class="lv" title="${esc(r.reason)}">${esc(String(r.reason||"").slice(0,2))}</td>`:`<td class="lv"></td>`):`<td class="${wk(x)}"></td>`}).join("")}</tr>`).join("")
 :`<tr ${st}><td class="fc mu" colspan="${nd+1}">Nessun dipendente registrato</td></tr>`;
 [["Infermieri",false],["OSS",true]].forEach(([lb,o])=>{rows+=`<tr ${st}><td class="fc"><b>${lb}</b> <span class="mu">(max ${MAX})</span></td>${ds.map(x=>{const n=forCat(x.k,t,o).length;return`<td class="${wk(x)}" style="${n>=MAX?"color:var(--hol);font-weight:700":""}">${n||""}</td>`}).join("")}</tr>`});
 body+=`<section class="ts" data-t="${t}"><div class="cap" style="--tc:${TC[t]}">Squadra ${t} · ${MESI[m]} ${year} · ${E.length} dipendenti</div><div class="tw"><table class="gr"><thead>${dh}</thead><tbody>${rows}</tbody></table></div></section>`});
@@ -290,7 +290,7 @@ const head=[[{content:"Dipendente",styles:{halign:"left"}},...days.map(x=>({cont
 const lt=tint(tc,.12),body=[];
 body.push([{content:"Turno",styles:{halign:"left",fillColor:lt,textColor:[80,80,80]}},...days.map(x=>{const sh=shift(t,year,m,x.d);return{content:sh,styles:{fillColor:rgb(SC[sh][0]),textColor:rgb(SC[sh][1]),fontStyle:"bold"}}})]);
 if(E.length){E.forEach(e=>body.push([{content:e.name+"  "+e.mat+(e.oss?"  OSS":""),styles:{halign:"left",fillColor:lt}},...days.map(x=>{const r=reqs.find(q=>q.date===x.k&&q.uid===e.uid);
-return r?{content:String(r.reason||"?")[0],styles:{fillColor:tc,textColor:WHITE,fontStyle:"bold"}}:{content:"",styles:{fillColor:x.off?WK:WHITE}}})]))}
+return r?{content:String(r.reason||"?").slice(0,2),styles:{fillColor:tc,textColor:WHITE,fontStyle:"bold"}}:{content:"",styles:{fillColor:x.off?WK:WHITE}}})]))}
 else body.push([{content:"Nessun dipendente registrato",colSpan:nd+1,styles:{halign:"left",fillColor:lt,textColor:[80,80,80]}}]);
 [["Infermieri",false],["OSS",true]].forEach(([lb,o])=>body.push([{content:lb+" (max "+MAX+")",styles:{halign:"left",fontStyle:"bold",fillColor:lt}},...days.map(x=>{const n=reqs.filter(r=>r.date===x.k&&r.team===t&&!!r.oss===o).length;
 return{content:n?String(n):"",styles:{fillColor:x.off?WK:WHITE,textColor:n>=MAX?RED:BLACK,fontStyle:n>=MAX?"bold":"normal"}}})]));
@@ -355,7 +355,9 @@ const m=$("#ml");if(m)m.href="mailto:"+encodeURIComponent(coord)+"?subject="+enc
 if(SUPABASE_URL.startsWith("INCOLLA")){$("#app").innerHTML=`<div class="auth"><h1>Configurazione mancante</h1><p>Inserisci URL e chiave di Supabase in cima al file index.html (vedi GUIDA.md).</p></div>`;return}
 sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);render();await start();
 setInterval(()=>{if(user&&!user.must&&!sel&&!prof&&document.activeElement.tagName!=="INPUT"&&document.activeElement.tagName!=="SELECT")load()},30000)
-})();  
+})();
+.lv{background:var(--ac);color:var(--acx);font-weight:700;white-space:nowrap;letter-spacing:-.3px}
+.lv{font-size:7px}  
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js');
   }
