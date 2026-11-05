@@ -11,7 +11,7 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "
 if (FORCE !== "1" && SCHED !== "0 7 17 * *") { await q("profiles?select=id&limit=1"); console.log("Ping ok (mantiene attivo il database)"); process.exit(0); }
 
 // ===== Regole turni (identiche a index.html) =====
-const SH = ["M","P","N","S","R"], MAX = 3, TEAMS = ["A","B","C","D","E","MT"], ANCHOR = "2026-01-02";
+const SH = ["M","P","N","S","R"], MAXI = 4, MAXO = 3, LIM = o => o ? MAXO : MAXI, TEAMS = ["A","B","C","D","E","MT"], ANCHOR = "2026-01-02";
 const leap=y=>(y%4===0&&y%100!==0)||y%400===0;
 const hc0={};
 function hols(y){if(hc0[y])return hc0[y];const h={};const add=(m,d,n)=>h[m+"-"+d]=n;
@@ -25,7 +25,7 @@ return hc0[y]=h}
 function shift(team,y,m,d){if(team==="MT")return"M";// squadra MT: solo Mattina, nessuna rotazione e nessuno slittamento dal 1° marzo
 const[ay,am,ad]=ANCHOR.split("-").map(Number);
 const n=Math.round((Date.UTC(y,m,d)-Date.UTC(ay,am-1,ad))/864e5);let x=0;const t0=Date.UTC(ay,am-1,ad),t1=Date.UTC(y,m,d);for(let yy=ay;yy<=y;yy++){const q=Date.UTC(yy,2,1);if(q>t0&&q<=t1&&!leap(yy))x++}return SH[(((n+x+TEAMS.indexOf(team))%5)+5)%5]}
-const TC={A:"#1d4ed8",B:"#15803d",C:"#c2410c",D:"#7e22ce",E:"#be185d",MT:"#0f766e"};
+const TC={A:"#1d4ed8",B:"#0891b2",C:"#c2410c",D:"#7e22ce",E:"#be185d",MT:"#475569"};
 
 const MESI = ["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
 const now = new Date(), t = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
@@ -34,10 +34,13 @@ const a = `${y}-${p2(m + 1)}-01`, b = new Date(Date.UTC(y, m + 1, 0)).toISOStrin
 const profs = await q("profiles?select=*");
 const tOf = new Map(profs.map(p => [p.id, p.team]));
 let reqs = [], o = 0;
-for (;;) { const r = await q(`requests?select=date,reason,user_id,team&date=gte.${a}&date=lte.${b}&order=date&limit=1000&offset=${o}`); reqs = reqs.concat(r); if (r.length < 1000) break; o += 1000; }
+for (;;) { const r = await q(`requests?select=*&date=gte.${a}&date=lte.${b}&order=date&limit=1000&offset=${o}`); reqs = reqs.concat(r); if (r.length < 1000) break; o += 1000; }
 const oOf = new Map(profs.map(p => [p.id, !!p.oss]));
 reqs.forEach(r => { r.team = r.team || tOf.get(r.user_id); r.oss = !!oOf.get(r.user_id); });
-const emps = tm => profs.filter(p => p.team === tm).sort((x, z) => x.name.localeCompare(z.name));
+// il 4° infermiere richiedente (in ordine di invio) va deciso dal coordinatore
+{ const g = {}; reqs.forEach(r => { const k = r.team + "|" + r.date; (g[k] = g[k] || []).push(r); });
+  Object.values(g).forEach(a => { a.filter(r => !r.oss).sort((x, z) => String(x.created_at || "").localeCompare(String(z.created_at || "")) || String(x.id).localeCompare(String(z.id))).forEach((r, i) => { r.ex = i >= 3; }); }); }
+const emps = tm => profs.filter(p => p.team === tm && !p.is_coord).sort((x, z) => x.name.localeCompare(z.name));
 
 // ===== Corpo dell'email (tabella di testo, come prima) =====
 let html = `<h2>Richieste ferie e permessi - ${MESI[m]} ${y}</h2><p>In allegato il PDF con la griglia turno di tutte le squadre.</p>`, tot = 0;
@@ -70,11 +73,11 @@ function buildPdf() {
     body.push([{ content: "Turno", styles: { halign: "left", fillColor: lt, textColor: [80,80,80] } }, ...days.map(x => { const sh = shift(tm, y, m, x.d); return { content: sh, styles: { fillColor: rgb(SC[sh][0]), textColor: rgb(SC[sh][1]), fontStyle: "bold" } }; })]);
     if (E.length) E.forEach(e => body.push([{ content: e.name + "  " + (e.matricola ?? "") + (e.oss ? "  OSS" : ""), styles: { halign: "left", fillColor: lt } }, ...days.map(x => {
       const r = reqs.find(q2 => q2.date === x.k && q2.user_id === e.id);
-      return r ? { content: String(r.reason || "?")[0], styles: { fillColor: tc, textColor: WHITE, fontStyle: "bold" } } : { content: "", styles: { fillColor: x.off ? WK : WHITE } };
+      return r ? { content: String(r.reason || "?").slice(0, 3), styles: { fillColor: r.stato === "approvata" ? [22,163,74] : (r.ex && (r.stato || "in_attesa") === "in_attesa" ? [220,38,38] : tc), textColor: WHITE, fontStyle: "bold" } } : { content: "", styles: { fillColor: x.off ? WK : WHITE } };
     })]));
     else body.push([{ content: "Nessun dipendente registrato", colSpan: nd + 1, styles: { halign: "left", fillColor: lt, textColor: [80,80,80] } }]);
-    [["Infermieri", false], ["OSS", true]].forEach(([lb, o]) => body.push([{ content: lb + " (max " + MAX + ")", styles: { halign: "left", fontStyle: "bold", fillColor: lt } }, ...days.map(x => { const n = reqs.filter(r => r.date === x.k && r.team === tm && r.oss === o).length;
-      return { content: n ? String(n) : "", styles: { fillColor: x.off ? WK : WHITE, textColor: n >= MAX ? RED : BLACK, fontStyle: n >= MAX ? "bold" : "normal" } }; })]));
+    [["Infermieri", false], ["OSS", true]].forEach(([lb, o]) => body.push([{ content: lb + " (max " + LIM(o) + ")", styles: { halign: "left", fontStyle: "bold", fillColor: lt } }, ...days.map(x => { const n = reqs.filter(r => r.date === x.k && r.team === tm && r.oss === o).length;
+      return { content: n ? String(n) : "", styles: { fillColor: x.off ? WK : WHITE, textColor: n >= LIM(o) ? RED : BLACK, fontStyle: n >= LIM(o) ? "bold" : "normal" } }; })]));
     const cs = { 0: { cellWidth: FC, halign: "left", cellPadding: { top: 1.6, bottom: 1.6, left: 2, right: 1 } } };
     for (let i = 1; i <= nd; i++) cs[i] = { cellWidth: (W - FC) / nd };
     autoTable(doc, { head, body, startY: 19, margin: { left: 8, right: 8, top: 8, bottom: 8 }, tableWidth: W, theme: "grid", columnStyles: cs,
