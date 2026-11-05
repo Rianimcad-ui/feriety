@@ -49,6 +49,7 @@ main{padding:12px 12px 40px}
 .sh{background:var(--sf);width:100%;max-width:520px;border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));max-height:85vh;overflow:auto}
 .sh h2{text-transform:capitalize;font-size:18px}
 .lv.ok,.gr tr.tm .lv.ok{background:#16a34a;color:#fff}
+.gr tr.tm .lv.ex{background:#dc2626;color:#fff}
 .ck{display:flex;align-items:center;gap:10px;margin:8px 2px;font-size:15px}.ck input{width:20px;height:20px;margin:0}
 .f1{width:100%;padding:11px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);margin:6px 0}
 .pb{width:100%;background:var(--ac);color:var(--acx);border:0;border-radius:12px;padding:13px;font-weight:700;margin-top:8px}
@@ -119,7 +120,7 @@ const SUPABASE_URL="https://pnovzqmipdctbacqfjmr.supabase.co",SUPABASE_KEY="eyJh
 // ==========================================
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const SH=["M","P","N","S","R"],NM={M:"Mattina",P:"Pomeriggio",N:"Notte",S:"Smonto",R:"Riposo"},TEAMS=["A","B","C","D","E","MT"],MAX=3;
+const SH=["M","P","N","S","R"],NM={M:"Mattina",P:"Pomeriggio",N:"Notte",S:"Smonto",R:"Riposo"},TEAMS=["A","B","C","D","E","MT"],MAXI=4,MAXO=3,LIM=o=>o?MAXO:MAXI;
 const MOT=["Ferie","37 Art","104 Legge","Malattia","40 Art","Eso","Studio / esame","Altro motivo"];
 const MESI=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
 const pad=n=>String(n).padStart(2,"0"),iso=(y,m,d)=>y+"-"+pad(m+1)+"-"+pad(d),fd=k=>k.split("-").reverse().join("/");
@@ -180,19 +181,19 @@ ${user.coord?"":`<div class="tabs"><button data-a="tab" data-v="cal" class="${ta
 <main>${tab==="cal"&&!user.coord?cal():tbl()}</main>${sel?sheet(sel):""}${prof?profile():""}${rq&&user.coord?rqSheet(rq):""}`}
 function cal(){
 let h=`<div class="yr"><button class="ib" data-a="yr" data-v="-1">‹</button><b>${year}</b><button class="ib" data-a="yr" data-v="1">›</button></div>
-<div class="leg">${SH.map(s=>`<span><span class="chip s${s}">${s}</span> ${NM[s]}</span>`).join(" ")}<span style="color:var(--hol)">● Festivo</span><span>● Tua richiesta</span><span>n = richieste della tua categoria (${user.oss?"OSS":"infermieri"}), max ${MAX}</span><span>Giorni sfumati: non richiedibili (si chiede solo il mese successivo, entro il 17)</span></div>`;
+<div class="leg">${SH.map(s=>`<span><span class="chip s${s}">${s}</span> ${NM[s]}</span>`).join(" ")}<span style="color:var(--hol)">● Festivo</span><span>● Tua richiesta</span><span>n = richieste della tua categoria (${user.oss?"OSS":"infermieri"}), max ${LIM(user.oss)}</span><span>Giorni sfumati: non richiedibili (si chiede solo il mese successivo, entro il 17)</span></div>`;
 const H=hols(year);
 for(let m=0;m<12;m++){
 const off=(new Date(Date.UTC(year,m,1)).getUTCDay()+6)%7,nd=new Date(Date.UTC(year,m+1,0)).getUTCDate();
 h+=`<section class="mon" id="m${m}"><h2>${MESI[m]} ${year}</h2><div class="g">${["L","M","M","G","V","S","D"].map(x=>`<div class="wd">${x}</div>`).join("")}`;
 for(let i=0;i<off;i++)h+=`<div class="e"></div>`;
 for(let d=1;d<=nd;d++){const k=iso(year,m,d),n=forCat(k,user.team,user.oss).length,wd=(off+d-1)%7,s=shift(user.team,year,m,d);
-const cl=["d",(H[m+"-"+d]||wd===6)?"h":"",k===today?"t":"",n>=MAX?"f":"",!isOpen(k)?"x":"",forDate(k).some(r=>r.uid===user.uid)?"m":""].join(" ");
+const cl=["d",(H[m+"-"+d]||wd===6)?"h":"",k===today?"t":"",n>=LIM(user.oss)?"f":"",!isOpen(k)?"x":"",forDate(k).some(r=>r.uid===user.uid)?"m":""].join(" ");
 h+=`<button class="${cl}" data-a="day" data-v="${k}"><b>${d}</b><span class="chip s${s}">${s}</span>${n?`<span class="c">${n}</span>`:""}</button>`}
 h+=`</div></section>`}
 return h}
 function sheet(k){
-const[y,m,d]=k.split("-").map(Number),H=hols(y)[(m-1)+"-"+d],list=forDate(k),nn=forCat(k,user.team,false).length,no=forCat(k,user.team,true).length,mine=list.find(r=>r.uid===user.uid),full=(user.oss?no:nn)>=MAX,closed=!isOpen(k);
+const[y,m,d]=k.split("-").map(Number),H=hols(y)[(m-1)+"-"+d],list=forDate(k),nn=forCat(k,user.team,false).length,no=forCat(k,user.team,true).length,mine=list.find(r=>r.uid===user.uid),full=user.oss?no>=MAXO:nn>=MAXI,soft=!user.oss&&nn>=3&&nn<MAXI,closed=!isOpen(k);
 const dt=new Date(Date.UTC(y,m-1,d)).toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:"UTC"});
 const my=shift(user.team,y,m-1,d);
 return `<div class="ov" data-a="close"><div class="sh" data-a="keep"><div class="row"><h2>${dt}</h2><button class="ib" data-a="close">✕</button></div>
@@ -200,12 +201,12 @@ ${H?`<p style="color:var(--hol);margin:2px 0"><b>${H}</b> (festivo)</p>`:""}
 <p>Il tuo turno: <span class="chip s${my}">${NM[my]}</span> ${my==="R"?`<span class="mu">il Riposo non si scala dalle ferie</span>`:""}</p>
 <div class="tg">${TEAMS.map(t=>{const s=shift(t,y,m-1,d);return`<span class="mu">${t}<br><span class="chip s${s}">${s}</span></span>`}).join("")}</div>
 <h2>Squadra ${user.team}: richieste</h2>
-<p class="mu" style="margin:2px 0">Infermieri <b>${nn}/${MAX}</b> · OSS <b>${no}/${MAX}</b></p>
-${list.length?list.map(r=>`<div class="li"><span>${esc(r.name)}${r.oss?` <span class="mu"><b>OSS</b></span>`:""}${r.uid===user.uid?`<br><span class="mu">${esc(r.reason)} · ${STATO[r.stato||"in_attesa"]}</span>`:""}</span>${r.uid===user.uid?`<button class="ib" data-a="del" data-v="${r.id}">Annulla</button>`:""}</div>`).join(""):`<p class="mu">Nessuna richiesta.</p>`}
+<p class="mu" style="margin:2px 0">Infermieri <b>${nn}/${MAXI}</b> · OSS <b>${no}/${MAXO}</b></p>
+${list.length?list.map(r=>`<div class="li"><span${r.ex&&(r.stato||"in_attesa")==="in_attesa"?` style="color:#dc2626;font-weight:700"`:""}>${esc(r.name)}${r.ex&&(r.stato||"in_attesa")==="in_attesa"?` <span class="mu" style="color:#dc2626">4° richiedente: decide il coordinatore</span>`:""}${r.oss?` <span class="mu"><b>OSS</b></span>`:""}${r.uid===user.uid?`<br><span class="mu">${esc(r.reason)} · ${STATO[r.stato||"in_attesa"]}</span>`:""}</span>${r.uid===user.uid?`<button class="ib" data-a="del" data-v="${r.id}">Annulla</button>`:""}</div>`).join(""):`<p class="mu">Nessuna richiesta.</p>`}
 ${mine?`<p class="mu">Hai già una richiesta per questo giorno.</p>`
 :closed?`<div class="wn"><b>Richieste non disponibili.</b> Si può chiedere solo il mese successivo, entro il 17: per ${MESI[m-1]} contatta il coordinatore.</div>`
-:full?`<div class="wn"><b>Giornata al completo per ${user.oss?"gli OSS":"gli infermieri"} (${MAX}/${MAX}).</b> Non è possibile inserire altre richieste: comunica la tua richiesta al coordinatore.</div>`
-:`<select class="f1" id="rs">${MOT.map(x=>`<option>${x}</option>`).join("")}</select><input class="f1" id="rx" maxlength="80" placeholder="Specifica il motivo (causale obbligatoria)" style="display:none"><button class="pb" data-a="add" data-v="${k}">Invia richiesta</button>`}
+:full?`<div class="wn"><b>Giornata al completo per ${user.oss?"gli OSS":"gli infermieri"} (${LIM(user.oss)}/${LIM(user.oss)}).</b> Non è possibile inserire altre richieste: comunica la tua richiesta al coordinatore.</div>`
+:`${soft?`<div class="wn"><b>Ci sono già ${nn} persone in ferie in questa giornata.</b> Puoi inviare comunque la richiesta, ma la decisione finale spetterà al coordinatore.</div>`:""}<select class="f1" id="rs">${MOT.map(x=>`<option>${x}</option>`).join("")}</select><input class="f1" id="rx" maxlength="80" placeholder="Specifica il motivo (causale obbligatoria)" style="display:none"><button class="pb" data-a="add" data-v="${k}">Invia richiesta</button>`}
 </div></div>`}
 const TC={A:"#1d4ed8",B:"#0891b2",C:"#c2410c",D:"#7e22ce",E:"#be185d",MT:"#475569"};
 function txt(){const m=gm;let o="Richieste ferie e permessi - "+MESI[m]+" "+year+"\n";
@@ -221,14 +222,14 @@ const dh=`<tr><th class="fc">Dipendente</th>${ds.map(x=>`<th class="${hc(x)}">${
 let body="";
 TEAMS.forEach(t=>{const E=emps(t),st=`class="tm" style="--tc:${TC[t]}"`;
 let rows=`<tr ${st}><td class="fc mu">Turno</td>${ds.map(x=>{const s=shift(t,year,m,x.d);return`<td class="${wk(x)}"><span class="chip s${s}">${s}</span></td>`}).join("")}</tr>`;
-rows+=E.length?E.map(e=>`<tr ${st}><td class="fc">${esc(e.name)} <span class="mu">${esc(e.mat)}</span>${e.oss?` <span class="mu"><b>OSS</b></span>`:""}</td>${ds.map(x=>{const r=reqs.find(q=>q.date===x.k&&q.uid===e.uid);return r?(()=>{const ok=r.stato==="approvata"?" ok":"",ca=user.coord?` data-a="rq" data-v="${r.id}" style="cursor:pointer"`:"";return r.uid===user.uid||user.adm||user.coord?`<td class="lv${ok}"${ca} title="${esc(r.reason)}">${esc(String(r.reason||"").slice(0,3))}</td>`:`<td class="lv${ok}"></td>`})():`<td class="${wk(x)}"></td>`}).join("")}</tr>`).join("")
+rows+=E.length?E.map(e=>`<tr ${st}><td class="fc">${esc(e.name)} <span class="mu">${esc(e.mat)}</span>${e.oss?` <span class="mu"><b>OSS</b></span>`:""}</td>${ds.map(x=>{const r=reqs.find(q=>q.date===x.k&&q.uid===e.uid);return r?(()=>{const ok=r.stato==="approvata"?" ok":(r.ex&&(r.stato||"in_attesa")==="in_attesa"?" ex":""),ca=user.coord?` data-a="rq" data-v="${r.id}" style="cursor:pointer"`:"";return r.uid===user.uid||user.adm||user.coord?`<td class="lv${ok}"${ca} title="${esc(r.reason)}">${esc(String(r.reason||"").slice(0,3))}</td>`:`<td class="lv${ok}"></td>`})():`<td class="${wk(x)}"></td>`}).join("")}</tr>`).join("")
 :`<tr ${st}><td class="fc mu" colspan="${nd+1}">Nessun dipendente registrato</td></tr>`;
-[["Infermieri",false],["OSS",true]].forEach(([lb,o])=>{rows+=`<tr ${st}><td class="fc"><b>${lb}</b> <span class="mu">(max ${MAX})</span></td>${ds.map(x=>{const n=forCat(x.k,t,o).length;return`<td class="${wk(x)}" style="${n>=MAX?"color:var(--hol);font-weight:700":""}">${n||""}</td>`}).join("")}</tr>`});
+[["Infermieri",false],["OSS",true]].forEach(([lb,o])=>{rows+=`<tr ${st}><td class="fc"><b>${lb}</b> <span class="mu">(max ${LIM(o)})</span></td>${ds.map(x=>{const n=forCat(x.k,t,o).length;return`<td class="${wk(x)}" style="${n>=LIM(o)?"color:var(--hol);font-weight:700":""}">${n||""}</td>`}).join("")}</tr>`});
 body+=`<section class="ts" data-t="${t}"><div class="cap" style="--tc:${TC[t]}">Squadra ${t} · ${MESI[m]} ${year} · ${E.length} dipendenti</div>${user.coord?approveBtn(t):""}<div class="tw"><table class="gr"><thead>${dh}</thead><tbody>${rows}</tbody></table></div></section>`});
 return `<div class="yr npr"><button class="ib" data-a="yr" data-v="-1">‹</button><b>${year}</b><button class="ib" data-a="yr" data-v="1">›</button></div>
 <div class="npr">${ban}<select class="f1" id="gm">${MESI.map((x,i)=>`<option value="${i}" ${i===m?"selected":""}>${x}</option>`).join("")}</select></div>
 ${body}
-<p class="mu npr">Ogni squadra ha il suo colore. Cella colorata = richiesta, verde = approvata dal coordinatore; ${user.adm||user.coord?"come amministratore/coordinatore vedi i motivi di tutti.":"il motivo lo vedi solo sulle tue."} Massimo ${MAX} infermieri e ${MAX} OSS per squadra e per giornata. Su smartphone ruota il telefono in orizzontale per leggere meglio.</p>
+<p class="mu npr">Ogni squadra ha il suo colore. Cella colorata = richiesta, verde = approvata dal coordinatore, rossa = 4° infermiere in attesa di decisione; ${user.adm||user.coord?"come amministratore/coordinatore vedi i motivi di tutti.":"il motivo lo vedi solo sulle tue."} Massimo ${MAXI} infermieri e ${MAXO} OSS per squadra e per giornata. Su smartphone ruota il telefono in orizzontale per leggere meglio.</p>
 <div class="npr pbar"><p class="mu">Stampa su foglio A4 in orizzontale, con tutti i giorni del mese:</p>
 <select class="f1" id="pr"><option value="all" ${pt==="all"?"selected":""}>Tutte le squadre (più fogli A4, uno per squadra)</option>${TEAMS.map(t=>`<option value="${t}" ${pt===t?"selected":""}>Solo squadra ${t} (1 foglio A4)</option>`).join("")}</select>
 <button class="pb" data-a="print">Stampa</button></div>
@@ -242,12 +243,14 @@ function profile(){return `<div class="ov" data-a="close"><div class="sh" data-a
 ${user.adm?`<hr><h2>Amministratore: reset password</h2><p class="mu">Imposta una password generica: l’utente dovrà cambiarla al primo accesso.</p>
 <input class="f1" id="rm" placeholder="Matricola dell’utente"><input class="f1" id="rp" value="${genpw()}"><button class="pb" data-a="reset">Reimposta password</button><div id="rr"></div><hr>`:""}
 ${user.coord?"":`<button class="pb" data-a="save">Salva</button>`}<button class="lk" data-a="out">Esci</button></div></div>`}
+function markEx(rs){const g={};rs.forEach(r=>{const k=r.team+"|"+r.date+"|"+(r.oss?1:0);(g[k]=g[k]||[]).push(r)});
+Object.values(g).forEach(a=>{a.sort((x,z)=>String(x.created_at||"").localeCompare(String(z.created_at||""))||String(x.id).localeCompare(String(z.id)));a.forEach((r,i)=>{r.ex=!r.oss&&i>=3})});return rs}
 async function load(){if(!user)return;
 const a=await sb.from("profiles").select("*");if(a.data)profs=a.data;
 let rs=[],f=0;for(;;){const{data,error}=await sb.from("requests").select("*").gte("date",year+"-01-01").lte("date",year+"-12-31").range(f,f+999);
 if(error)break;rs=rs.concat(data);if(data.length<1000)break;f+=1000}
 const m=new Map(profs.map(p=>[p.id,p]));
-reqs=rs.map(r=>{const p=m.get(r.user_id)||{};return{...r,uid:r.user_id,name:p.name||"?",mat:p.matricola||"",oss:!!p.oss}});render()}
+reqs=markEx(rs.map(r=>{const p=m.get(r.user_id)||{};return{...r,uid:r.user_id,name:p.name||"?",mat:p.matricola||"",oss:!!p.oss}}));render()}
 async function start(){const{data:{session}}=await sb.auth.getSession();if(!session){user=null;render();return}
 const{data}=await sb.from("profiles").select("*").eq("id",session.user.id).single();
 if(!data){user=null;render();return}
@@ -266,11 +269,12 @@ if(mode==="reg"&&$("#ao").checked){try{await sb.from("profiles").update({oss:tru
 await start()}
 async function addReq(k,reason){
 if(!isOpen(k)){toast("Termine scaduto: contatta il coordinatore");return}
+const pre=!user.oss&&forCat(k,user.team,false).length>=3;
 const{error}=await sb.from("requests").insert({date:k,reason});
 if(error){const m=error.message||"";
 toast(m.includes("LIMITE_3")?"Giornata al completo: comunica la richiesta al coordinatore":m.includes("TERMINE")?"Termine scaduto: contatta il coordinatore":error.code==="23505"?"Hai già una richiesta per questo giorno":"Errore: riprova");
 await load();return}
-sel=null;toast("Richiesta inviata");await load()}
+sel=null;toast(pre?"Richiesta inviata: c'erano già 3 persone in ferie, la decisione finale spetta al coordinatore":"Richiesta inviata");await load()}
 // ===== Coordinatore: approva o rifiuta le richieste =====
 const pendIds=t=>reqs.filter(r=>r.team===t&&r.date.startsWith(year+"-"+pad(gm+1))&&(r.stato||"in_attesa")==="in_attesa").map(r=>r.id);
 const approveBtn=t=>{const n=pendIds(t).length;return`<button class="pb npr" data-a="apvall" data-v="${t}" style="margin:8px 0">✓ Approva tutte le richieste della squadra ${t} (${n} in attesa)</button>`};
@@ -302,10 +306,10 @@ const head=[[{content:"Dipendente",styles:{halign:"left"}},...days.map(x=>({cont
 const lt=tint(tc,.12),body=[];
 body.push([{content:"Turno",styles:{halign:"left",fillColor:lt,textColor:[80,80,80]}},...days.map(x=>{const sh=shift(t,year,m,x.d);return{content:sh,styles:{fillColor:rgb(SC[sh][0]),textColor:rgb(SC[sh][1]),fontStyle:"bold"}}})]);
 if(E.length){E.forEach(e=>body.push([{content:e.name+"  "+e.mat+(e.oss?"  OSS":""),styles:{halign:"left",fillColor:lt}},...days.map(x=>{const r=reqs.find(q=>q.date===x.k&&q.uid===e.uid);
-return r?{content:String(r.reason||"?").slice(0,3),styles:{fillColor:r.stato==="approvata"?[22,163,74]:tc,textColor:WHITE,fontStyle:"bold"}}:{content:"",styles:{fillColor:x.off?WK:WHITE}}})]))}
+return r?{content:String(r.reason||"?").slice(0,3),styles:{fillColor:r.stato==="approvata"?[22,163,74]:(r.ex&&(r.stato||"in_attesa")==="in_attesa"?[220,38,38]:tc),textColor:WHITE,fontStyle:"bold"}}:{content:"",styles:{fillColor:x.off?WK:WHITE}}})]))}
 else body.push([{content:"Nessun dipendente registrato",colSpan:nd+1,styles:{halign:"left",fillColor:lt,textColor:[80,80,80]}}]);
-[["Infermieri",false],["OSS",true]].forEach(([lb,o])=>body.push([{content:lb+" (max "+MAX+")",styles:{halign:"left",fontStyle:"bold",fillColor:lt}},...days.map(x=>{const n=reqs.filter(r=>r.date===x.k&&r.team===t&&!!r.oss===o).length;
-return{content:n?String(n):"",styles:{fillColor:x.off?WK:WHITE,textColor:n>=MAX?RED:BLACK,fontStyle:n>=MAX?"bold":"normal"}}})]));
+[["Infermieri",false],["OSS",true]].forEach(([lb,o])=>body.push([{content:lb+" (max "+LIM(o)+")",styles:{halign:"left",fontStyle:"bold",fillColor:lt}},...days.map(x=>{const n=reqs.filter(r=>r.date===x.k&&r.team===t&&!!r.oss===o).length;
+return{content:n?String(n):"",styles:{fillColor:x.off?WK:WHITE,textColor:n>=LIM(o)?RED:BLACK,fontStyle:n>=LIM(o)?"bold":"normal"}}})]));
 const cs={0:{cellWidth:FC,halign:"left",cellPadding:{top:1.6,bottom:1.6,left:2,right:1}}};for(let i=1;i<=nd;i++)cs[i]={cellWidth:(W-FC)/nd};
 doc.autoTable({head,body,startY:19,margin:{left:8,right:8,top:8,bottom:8},tableWidth:W,theme:"grid",columnStyles:cs,
 styles:{font:"helvetica",fontSize:8,cellPadding:{top:1.6,bottom:1.6,left:0,right:0},halign:"center",valign:"middle",lineColor:[153,153,153],lineWidth:.2,textColor:BLACK,overflow:"ellipsize"},
