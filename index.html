@@ -151,6 +151,7 @@ const OW=(()=>{let m=T.getMonth()+(T.getDate()>17?2:1),y=T.getFullYear();if(m>11
 const isOpen=k=>{const[y,m]=k.split("-").map(Number);return y===OW.y&&m-1===OW.m&&today<=dl(k)};
 function toast(t){const e=document.createElement("div");e.className="toast";e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),3000)}
 const forDate=(d,t)=>reqs.filter(r=>r.date===d&&r.team===(t||user.team));
+const vis=()=>user&&(user.adm||user.coord)?TEAMS:[user.team]; // privacy: un utente vede solo la propria squadra, amministratore e coordinatore tutte
 const STATO={in_attesa:"In attesa",approvata:"Approvata",rifiutata:"Rifiutata"};
 const forCat=(d,t,o)=>forDate(d,t).filter(r=>!!r.oss===!!o);
 const emps=t=>profs.filter(p=>p.team===t&&!p.is_coord).map(p=>({uid:p.id,oss:!!p.oss,name:p.name,mat:p.matricola})).sort((a,b)=>a.name.localeCompare(b.name));
@@ -220,7 +221,7 @@ const off=x=>(H[m+"-"+x.d]||x.w===0),hc=x=>off(x)?"h wk":"",wk=x=>off(x)?"wk":""
 ban=today===cd?`<div class="wn"><b>Oggi si chiude l’inserimento per ${MESI[m]}.</b> La tabella parte in automatico verso il coordinatore.</div>`:today>cd?`<div class="wn"><b>Inserimento per ${MESI[m]} chiuso.</b></div>`:"";
 const dh=`<tr><th class="fc">Dipendente</th>${ds.map(x=>`<th class="${hc(x)}">${dn[x.w]}<br>${x.d}</th>`).join("")}</tr>`;
 let body="";
-TEAMS.forEach(t=>{const E=emps(t),st=`class="tm" style="--tc:${TC[t]}"`;
+vis().forEach(t=>{const E=emps(t),st=`class="tm" style="--tc:${TC[t]}"`;
 let rows=`<tr ${st}><td class="fc mu">Turno</td>${ds.map(x=>{const s=shift(t,year,m,x.d);return`<td class="${wk(x)}"><span class="chip s${s}">${s}</span></td>`}).join("")}</tr>`;
 rows+=E.length?E.map(e=>`<tr ${st}><td class="fc">${esc(e.name)} <span class="mu">${esc(e.mat)}</span>${e.oss?` <span class="mu"><b>OSS</b></span>`:""}</td>${ds.map(x=>{const r=reqs.find(q=>q.date===x.k&&q.uid===e.uid);return r?(()=>{const ok=r.stato==="approvata"?" ok":(r.ex&&(r.stato||"in_attesa")==="in_attesa"?" ex":""),ca=user.coord?` data-a="rq" data-v="${r.id}" style="cursor:pointer"`:"";return r.uid===user.uid||user.adm||user.coord?`<td class="lv${ok}"${ca} title="${esc(r.reason)}">${esc(String(r.reason||"").slice(0,3))}</td>`:`<td class="lv${ok}"></td>`})():`<td class="${wk(x)}"></td>`}).join("")}</tr>`).join("")
 :`<tr ${st}><td class="fc mu" colspan="${nd+1}">Nessun dipendente registrato</td></tr>`;
@@ -230,8 +231,8 @@ return `<div class="yr npr"><button class="ib" data-a="yr" data-v="-1">‹</butt
 <div class="npr">${ban}<select class="f1" id="gm">${MESI.map((x,i)=>`<option value="${i}" ${i===m?"selected":""}>${x}</option>`).join("")}</select></div>
 ${body}
 <p class="mu npr">Ogni squadra ha il suo colore. Cella colorata = richiesta, verde = approvata dal coordinatore, rossa = 4° infermiere in attesa di decisione; ${user.adm||user.coord?"come amministratore/coordinatore vedi i motivi di tutti.":"il motivo lo vedi solo sulle tue."} Massimo ${MAXI} infermieri e ${MAXO} OSS per squadra e per giornata. Su smartphone ruota il telefono in orizzontale per leggere meglio.</p>
-<div class="npr pbar"><p class="mu">Stampa su foglio A4 in orizzontale, con tutti i giorni del mese:</p>
-<select class="f1" id="pr"><option value="all" ${pt==="all"?"selected":""}>Tutte le squadre (più fogli A4, uno per squadra)</option>${TEAMS.map(t=>`<option value="${t}" ${pt===t?"selected":""}>Solo squadra ${t} (1 foglio A4)</option>`).join("")}</select>
+<div class="npr pbar"><p class="mu">${user.adm||user.coord?"Stampa su foglio A4 in orizzontale, con tutti i giorni del mese:":`Stampa la griglia della squadra ${user.team} su un foglio A4 in orizzontale, con tutti i giorni del mese:`}</p>
+${user.adm||user.coord?`<select class="f1" id="pr"><option value="all" ${pt==="all"?"selected":""}>Tutte le squadre (più fogli A4, uno per squadra)</option>${TEAMS.map(t=>`<option value="${t}" ${pt===t?"selected":""}>Solo squadra ${t} (1 foglio A4)</option>`).join("")}</select>`:""}
 <button class="pb" data-a="print">Stampa</button></div>
 ${user.adm?`<div class="npr"><p class="mu">Invio al coordinatore (solo amministratore): la tabella parte come PDF allegato, identico all’anteprima di stampa, con le squadre scelte nel menu di stampa qui sopra.</p>
 <input class="f1" id="co" type="email" placeholder="Email del coordinatore" value="${esc(coord)}">
@@ -329,8 +330,8 @@ doc.save(fn);toast("PDF scaricato: allegalo all'email");
 window.location.href="mailto:"+encodeURIComponent(to)+"?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(text+"\n\n(Allega il file "+fn+" appena scaricato)")}
 async function dlPdf(){if(!user||!user.adm)return;toast("Preparo il PDF…");try{(await buildPdf(pt)).save(pdfName())}catch(e){toast("Errore nella creazione del PDF")}}
 // Stampa: tutte le squadre (un foglio A4 orizzontale per squadra) oppure una sola squadra (1 foglio)
-function doPrint(){const ps=$("#ps");
-ps.textContent=pt==="all"?"":"@media print{.ts:not([data-t=\""+pt+"\"]){display:none!important}}";
+function doPrint(){const ps=$("#ps"),tp=user&&(user.adm||user.coord)?pt:user.team; // gli altri utenti stampano solo la propria squadra
+ps.textContent=tp==="all"?"":"@media print{.ts:not([data-t=\""+tp+"\"]){display:none!important}}";
 window.print()}
 window.addEventListener("afterprint",()=>{const ps=$("#ps");if(ps)ps.textContent=""});
 document.addEventListener("click",async ev=>{
