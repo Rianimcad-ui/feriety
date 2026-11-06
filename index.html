@@ -120,7 +120,9 @@ const SUPABASE_URL="https://pnovzqmipdctbacqfjmr.supabase.co",SUPABASE_KEY="eyJh
 // ==========================================
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const SH=["M","P","N","S","R"],NM={M:"Mattina",P:"Pomeriggio",N:"Notte",S:"Smonto",R:"Riposo"},TEAMS=["A","B","C","D","E","MT"],MAXI=4,MAXO=3,LIM=o=>o?MAXO:MAXI;
+let MAXI=4,MAXO=3; // valori di partenza: si cambiano dall'app (amministratore e coordinatore)
+const SOFT=()=>MAXI>1?MAXI-1:MAXI;
+const SH=["M","P","N","S","R"],NM={M:"Mattina",P:"Pomeriggio",N:"Notte",S:"Smonto",R:"Riposo"},TEAMS=["A","B","C","D","E","MT"],LIM=o=>o?MAXO:MAXI;
 const MOT=["Ferie","37 Art","104 Legge","Malattia","40 Art","Eso","Studio / esame","Altro motivo"];
 const MESI=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
 const pad=n=>String(n).padStart(2,"0"),iso=(y,m,d)=>y+"-"+pad(m+1)+"-"+pad(d),fd=k=>k.split("-").reverse().join("/");
@@ -194,7 +196,7 @@ h+=`<button class="${cl}" data-a="day" data-v="${k}"><b>${d}</b><span class="chi
 h+=`</div></section>`}
 return h}
 function sheet(k){
-const[y,m,d]=k.split("-").map(Number),H=hols(y)[(m-1)+"-"+d],list=forDate(k),nn=forCat(k,user.team,false).length,no=forCat(k,user.team,true).length,mine=list.find(r=>r.uid===user.uid),full=user.oss?no>=MAXO:nn>=MAXI,soft=!user.oss&&nn>=3&&nn<MAXI,closed=!isOpen(k);
+const[y,m,d]=k.split("-").map(Number),H=hols(y)[(m-1)+"-"+d],list=forDate(k),nn=forCat(k,user.team,false).length,no=forCat(k,user.team,true).length,mine=list.find(r=>r.uid===user.uid),full=user.oss?no>=MAXO:nn>=MAXI,soft=!user.oss&&nn>=SOFT()&&nn<MAXI,closed=!isOpen(k);
 const dt=new Date(Date.UTC(y,m-1,d)).toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:"UTC"});
 const my=shift(user.team,y,m-1,d);
 return `<div class="ov" data-a="close"><div class="sh" data-a="keep"><div class="row"><h2>${dt}</h2><button class="ib" data-a="close">✕</button></div>
@@ -203,7 +205,7 @@ ${H?`<p style="color:var(--hol);margin:2px 0"><b>${H}</b> (festivo)</p>`:""}
 <div class="tg">${TEAMS.map(t=>{const s=shift(t,y,m-1,d);return`<span class="mu">${t}<br><span class="chip s${s}">${s}</span></span>`}).join("")}</div>
 <h2>Squadra ${user.team}: richieste</h2>
 <p class="mu" style="margin:2px 0">Infermieri <b>${nn}/${MAXI}</b> · OSS <b>${no}/${MAXO}</b></p>
-${list.length?list.map(r=>`<div class="li"><span${r.ex&&(r.stato||"in_attesa")==="in_attesa"?` style="color:#dc2626;font-weight:700"`:""}>${esc(r.name)}${r.ex&&(r.stato||"in_attesa")==="in_attesa"?` <span class="mu" style="color:#dc2626">4° richiedente: decide il coordinatore</span>`:""}${r.oss?` <span class="mu"><b>OSS</b></span>`:""}${r.uid===user.uid?`<br><span class="mu">${esc(r.reason)} · ${STATO[r.stato||"in_attesa"]}</span>`:""}</span>${r.uid===user.uid?`<button class="ib" data-a="del" data-v="${r.id}">Annulla</button>`:""}</div>`).join(""):`<p class="mu">Nessuna richiesta.</p>`}
+${list.length?list.map(r=>`<div class="li"><span${r.ex&&(r.stato||"in_attesa")==="in_attesa"?` style="color:#dc2626;font-weight:700"`:""}>${esc(r.name)}${r.ex&&(r.stato||"in_attesa")==="in_attesa"?` <span class="mu" style="color:#dc2626">${MAXI}° richiedente: decide il coordinatore</span>`:""}${r.oss?` <span class="mu"><b>OSS</b></span>`:""}${r.uid===user.uid?`<br><span class="mu">${esc(r.reason)} · ${STATO[r.stato||"in_attesa"]}</span>`:""}</span>${r.uid===user.uid?`<button class="ib" data-a="del" data-v="${r.id}">Annulla</button>`:""}</div>`).join(""):`<p class="mu">Nessuna richiesta.</p>`}
 ${mine?`<p class="mu">Hai già una richiesta per questo giorno.</p>`
 :closed?`<div class="wn"><b>Richieste non disponibili.</b> Si può chiedere solo il mese successivo, entro il 17: per ${MESI[m-1]} contatta il coordinatore.</div>`
 :full?`<div class="wn"><b>Giornata al completo per ${user.oss?"gli OSS":"gli infermieri"} (${LIM(user.oss)}/${LIM(user.oss)}).</b> Non è possibile inserire altre richieste: comunica la tua richiesta al coordinatore.</div>`
@@ -230,7 +232,11 @@ body+=`<section class="ts" data-t="${t}"><div class="cap" style="--tc:${TC[t]}">
 return `<div class="yr npr"><button class="ib" data-a="yr" data-v="-1">‹</button><b>${year}</b><button class="ib" data-a="yr" data-v="1">›</button></div>
 <div class="npr">${ban}<select class="f1" id="gm">${MESI.map((x,i)=>`<option value="${i}" ${i===m?"selected":""}>${x}</option>`).join("")}</select></div>
 ${body}
-<p class="mu npr">Ogni squadra ha il suo colore. Cella colorata = richiesta, verde = approvata dal coordinatore, rossa = 4° infermiere in attesa di decisione; ${user.adm||user.coord?"come amministratore/coordinatore vedi i motivi di tutti.":"il motivo lo vedi solo sulle tue."} Massimo ${MAXI} infermieri e ${MAXO} OSS per squadra e per giornata. Su smartphone ruota il telefono in orizzontale per leggere meglio.</p>
+<p class="mu npr">Ogni squadra ha il suo colore. Cella colorata = richiesta, verde = approvata dal coordinatore, rossa = ultimo posto infermieri, in attesa di decisione; ${user.adm||user.coord?"come amministratore/coordinatore vedi i motivi di tutti.":"il motivo lo vedi solo sulle tue."} Massimo ${MAXI} infermieri e ${MAXO} OSS per squadra e per giornata. Su smartphone ruota il telefono in orizzontale per leggere meglio.</p>
+${user.adm||user.coord?`<div class="npr pbar"><p class="mu"><b>Numero massimo di persone in ferie</b> per giornata e per squadra (vale per tutta l’app):</p>
+<label class="mu">Infermieri <input class="f1" id="mi" type="number" min="1" max="50" value="${MAXI}" style="width:80px;display:inline-block"></label>
+<label class="mu">OSS <input class="f1" id="mo" type="number" min="1" max="50" value="${MAXO}" style="width:80px;display:inline-block"></label>
+<button class="pb" data-a="savemax">Salva limite</button></div>`:""}
 <div class="npr pbar"><p class="mu">${user.adm||user.coord?"Stampa su foglio A4 in orizzontale, con tutti i giorni del mese:":`Stampa la griglia della squadra ${user.team} su un foglio A4 in orizzontale, con tutti i giorni del mese:`}</p>
 ${user.adm||user.coord?`<select class="f1" id="pr"><option value="all" ${pt==="all"?"selected":""}>Tutte le squadre (più fogli A4, uno per squadra)</option>${TEAMS.map(t=>`<option value="${t}" ${pt===t?"selected":""}>Solo squadra ${t} (1 foglio A4)</option>`).join("")}</select>`:""}
 <button class="pb" data-a="print">Stampa</button></div>
@@ -245,9 +251,10 @@ ${user.adm?`<hr><h2>Amministratore: reset password</h2><p class="mu">Imposta una
 <input class="f1" id="rm" placeholder="Matricola dell’utente"><input class="f1" id="rp" value="${genpw()}"><button class="pb" data-a="reset">Reimposta password</button><div id="rr"></div><hr>`:""}
 ${user.coord?"":`<button class="pb" data-a="save">Salva</button>`}<button class="lk" data-a="out">Esci</button></div></div>`}
 function markEx(rs){const g={};rs.forEach(r=>{const k=r.team+"|"+r.date+"|"+(r.oss?1:0);(g[k]=g[k]||[]).push(r)});
-Object.values(g).forEach(a=>{a.sort((x,z)=>String(x.created_at||"").localeCompare(String(z.created_at||""))||String(x.id).localeCompare(String(z.id)));a.forEach((r,i)=>{r.ex=!r.oss&&i>=3})});return rs}
+Object.values(g).forEach(a=>{a.sort((x,z)=>String(x.created_at||"").localeCompare(String(z.created_at||""))||String(x.id).localeCompare(String(z.id)));a.forEach((r,i)=>{r.ex=!r.oss&&i>=SOFT()})});return rs}
 async function load(){if(!user)return;
 const a=await sb.from("profiles").select("*");if(a.data)profs=a.data;
+try{const st=await sb.from("impostazioni").select("*").eq("id",1).maybeSingle();if(st.data){MAXI=+st.data.max_inf||MAXI;MAXO=+st.data.max_oss||MAXO}}catch(e){}
 let rs=[],f=0;for(;;){const{data,error}=await sb.from("requests").select("*").gte("date",year+"-01-01").lte("date",year+"-12-31").range(f,f+999);
 if(error)break;rs=rs.concat(data);if(data.length<1000)break;f+=1000}
 const m=new Map(profs.map(p=>[p.id,p]));
@@ -270,12 +277,12 @@ if(mode==="reg"&&$("#ao").checked){try{await sb.from("profiles").update({oss:tru
 await start()}
 async function addReq(k,reason){
 if(!isOpen(k)){toast("Termine scaduto: contatta il coordinatore");return}
-const pre=!user.oss&&forCat(k,user.team,false).length>=3;
+const pre=!user.oss&&forCat(k,user.team,false).length>=SOFT();
 const{error}=await sb.from("requests").insert({date:k,reason});
 if(error){const m=error.message||"";
 toast(m.includes("LIMITE_3")?"Giornata al completo: comunica la richiesta al coordinatore":m.includes("TERMINE")?"Termine scaduto: contatta il coordinatore":error.code==="23505"?"Hai già una richiesta per questo giorno":"Errore: riprova");
 await load();return}
-sel=null;toast(pre?"Richiesta inviata: c'erano già 3 persone in ferie, la decisione finale spetta al coordinatore":"Richiesta inviata");await load()}
+sel=null;toast(pre?"Richiesta inviata: c'erano già "+SOFT()+" persone in ferie, la decisione finale spetta al coordinatore":"Richiesta inviata");await load()}
 // ===== Coordinatore: approva o rifiuta le richieste =====
 const pendIds=t=>reqs.filter(r=>r.team===t&&r.date.startsWith(year+"-"+pad(gm+1))&&(r.stato||"in_attesa")==="in_attesa").map(r=>r.id);
 const approveBtn=t=>{const n=pendIds(t).length;return`<button class="pb npr" data-a="apvall" data-v="${t}" style="margin:8px 0">✓ Approva tutte le richieste della squadra ${t} (${n} in attesa)</button>`};
@@ -349,6 +356,10 @@ else if(a==="day"){sel=v;render()}
 else if(a==="add"){let r=$("#rs").value;if(r==="Altro motivo"){const x=$("#rx").value.trim();if(x.length<3){toast("Specifica il motivo (causale)");return}r="Altro: "+x}addReq(v,r)}
 else if(a==="del"){await sb.from("requests").delete().eq("id",v);await load()}
 else if(a==="prof"){prof=true;render()}
+else if(a==="savemax"){if(!(user.adm||user.coord))return;const mi=parseInt($("#mi").value,10),mo=parseInt($("#mo").value,10);
+if(!(mi>=1&&mi<=50&&mo>=1&&mo<=50)){toast("Inserisci numeri da 1 a 50");return}
+const{error}=await sb.from("impostazioni").update({max_inf:mi,max_oss:mo}).eq("id",1);
+if(error)toast("Errore: riprova");else{toast("Limite salvato: "+mi+" infermieri, "+mo+" OSS");await load()}}
 else if(a==="save"){const t=$("#pt").value,os=$("#po").checked;const{error}=await sb.from("profiles").update({team:t,oss:os}).eq("id",user.uid);
 if(error)toast("Errore: riprova");else{user.team=t;user.oss=os;gt=null;prof=false;await load()}}
 else if(a==="out"){await sb.auth.signOut();user=null;prof=false;sel=null;reqs=[];render()}

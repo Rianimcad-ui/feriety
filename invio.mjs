@@ -11,7 +11,8 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "
 if (FORCE !== "1" && SCHED !== "0 7 17 * *") { await q("profiles?select=id&limit=1"); console.log("Ping ok (mantiene attivo il database)"); process.exit(0); }
 
 // ===== Regole turni (identiche a index.html) =====
-const SH = ["M","P","N","S","R"], MAXI = 4, MAXO = 3, LIM = o => o ? MAXO : MAXI, TEAMS = ["A","B","C","D","E","MT"], ANCHOR = "2026-01-02";
+let MAXI = 4, MAXO = 3;
+const SH = ["M","P","N","S","R"], LIM = o => o ? MAXO : MAXI, TEAMS = ["A","B","C","D","E","MT"], ANCHOR = "2026-01-02";
 const leap=y=>(y%4===0&&y%100!==0)||y%400===0;
 const hc0={};
 function hols(y){if(hc0[y])return hc0[y];const h={};const add=(m,d,n)=>h[m+"-"+d]=n;
@@ -32,6 +33,7 @@ const now = new Date(), t = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMo
 const y = t.getUTCFullYear(), m = t.getUTCMonth(), p2 = n => String(n).padStart(2, "0");
 const a = `${y}-${p2(m + 1)}-01`, b = new Date(Date.UTC(y, m + 1, 0)).toISOString().slice(0, 10);
 const profs = await q("profiles?select=*");
+try { const st = (await q("impostazioni?select=*&id=eq.1"))[0]; if (st) { MAXI = +st.max_inf || MAXI; MAXO = +st.max_oss || MAXO; } } catch (e) { console.log("Impostazioni non lette, uso 4/3"); }
 const tOf = new Map(profs.map(p => [p.id, p.team]));
 let reqs = [], o = 0;
 for (;;) { const r = await q(`requests?select=*&date=gte.${a}&date=lte.${b}&order=date&limit=1000&offset=${o}`); reqs = reqs.concat(r); if (r.length < 1000) break; o += 1000; }
@@ -39,7 +41,7 @@ const oOf = new Map(profs.map(p => [p.id, !!p.oss]));
 reqs.forEach(r => { r.team = r.team || tOf.get(r.user_id); r.oss = !!oOf.get(r.user_id); });
 // il 4° infermiere richiedente (in ordine di invio) va deciso dal coordinatore
 { const g = {}; reqs.forEach(r => { const k = r.team + "|" + r.date; (g[k] = g[k] || []).push(r); });
-  Object.values(g).forEach(a => { a.filter(r => !r.oss).sort((x, z) => String(x.created_at || "").localeCompare(String(z.created_at || "")) || String(x.id).localeCompare(String(z.id))).forEach((r, i) => { r.ex = i >= 3; }); }); }
+  Object.values(g).forEach(a => { a.filter(r => !r.oss).sort((x, z) => String(x.created_at || "").localeCompare(String(z.created_at || "")) || String(x.id).localeCompare(String(z.id))).forEach((r, i) => { r.ex = i >= (MAXI > 1 ? MAXI - 1 : MAXI); }); }); }
 const emps = tm => profs.filter(p => p.team === tm && !p.is_coord).sort((x, z) => x.name.localeCompare(z.name));
 
 // ===== Corpo dell'email (tabella di testo, come prima) =====
