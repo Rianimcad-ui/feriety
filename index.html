@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 <html lang="it"><head><meta charset="utf-8">
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#1d4ed8"><link rel="apple-touch-icon" href="icon-192.png">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ferie reparto</title>
 <style>
@@ -50,6 +51,7 @@ main{padding:12px 12px 40px}
 .sh h2{text-transform:capitalize;font-size:18px}
 .lv.ok,.gr tr.tm .lv.ok{background:#16a34a;color:#fff}
 .gr tr.tm .lv.ex{background:#dc2626;color:#fff}
+.lv.no{position:relative}.lv.no::after{content:"✕";position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;color:#ef4444;font-weight:900;font-size:1.6em;line-height:1;text-shadow:0 0 2px #fff,0 0 3px #fff}
 .ck{display:flex;align-items:center;gap:10px;margin:8px 2px;font-size:15px}.ck input{width:20px;height:20px;margin:0}
 .f1{width:100%;padding:11px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);margin:6px 0}
 .pb{width:100%;background:var(--ac);color:var(--acx);border:0;border-radius:12px;padding:13px;font-weight:700;margin-top:8px}
@@ -158,7 +160,7 @@ const STATO={in_attesa:"In attesa",approvata:"Approvata",rifiutata:"Rifiutata"};
 const forCat=(d,t,o)=>forDate(d,t).filter(r=>!!r.oss===!!o);
 const emps=t=>profs.filter(p=>p.team===t&&!p.is_coord).map(p=>({uid:p.id,oss:!!p.oss,name:p.name,mat:p.matricola})).sort((a,b)=>a.name.localeCompare(b.name));
 function render(){
-document.body.classList.toggle("wide",!!user&&tab==="tbl");document.body.classList.toggle("bgin",!user||user.must);
+document.body.classList.toggle("wide",!!user&&tab==="tbl");document.body.classList.toggle("bgin",!user||user.must||user.needEmail);
 if(!user&&mode==="forgot"){$("#app").innerHTML=`<div class="auth"><h1>Password dimenticata</h1>
 <p class="mu">Inserisci la tua matricola e poi invia la richiesta all’amministratore.</p>
 <input class="f1" id="fm" placeholder="Numero di matricola" value="${esc(fmat)}">
@@ -179,6 +181,9 @@ if(user.must){$("#app").innerHTML=`<div class="auth"><h1>Scegli una nuova passwo
 <input class="f1" id="n1" type="password" placeholder="Nuova password (almeno 6 caratteri)" autocomplete="new-password">
 <input class="f1" id="n2" type="password" placeholder="Ripeti la nuova password" autocomplete="new-password">
 <p class="err" id="err"></p><button class="pb" data-a="newpw">Salva password</button><button class="lk" data-a="out">Esci</button></div>`;return}
+if(user.needEmail){$("#app").innerHTML=`<div class="auth"><h1>La tua email</h1><p class="mu">Inserisci un indirizzo email per continuare. Lo useremo solo per avvisarti se una tua richiesta di ferie viene rifiutata dal coordinatore.</p>
+<input class="f1" id="em" type="email" placeholder="La tua email" autocomplete="email">
+<p class="err" id="err"></p><button class="pb" data-a="saveemail">Salva e continua</button><button class="lk" data-a="out">Esci</button></div>`;return}
 $("#app").innerHTML=`<header><div class="row"><h1>Ferie reparto</h1><span><button class="ib" data-a="prof">${esc(user.name.split(" ")[0])} · ${user.coord?"coordinatore":user.team}</button> <button class="ib" data-a="out">Esci</button></span></div>
 ${user.coord?"":`<div class="tabs"><button data-a="tab" data-v="cal" class="${tab==="cal"?"on":""}">Calendario</button><button data-a="tab" data-v="tbl" class="${tab==="tbl"?"on":""}">Griglia turno</button></div>`}</header>
 <main>${tab==="cal"&&!user.coord?cal():tbl()}</main>${sel?sheet(sel):""}${prof?profile():""}${rq&&user.coord?rqSheet(rq):""}`}
@@ -225,7 +230,7 @@ const dh=`<tr><th class="fc">Dipendente</th>${ds.map(x=>`<th class="${hc(x)}">${
 let body="";
 vis().forEach(t=>{const E=emps(t),st=`class="tm" style="--tc:${TC[t]}"`;
 let rows=`<tr ${st}><td class="fc mu">Turno</td>${ds.map(x=>{const s=shift(t,year,m,x.d);return`<td class="${wk(x)}"><span class="chip s${s}">${s}</span></td>`}).join("")}</tr>`;
-rows+=E.length?E.map(e=>`<tr ${st}><td class="fc">${esc(e.name)} <span class="mu">${esc(e.mat)}</span>${e.oss?` <span class="mu"><b>OSS</b></span>`:""}</td>${ds.map(x=>{const r=reqs.find(q=>q.date===x.k&&q.uid===e.uid);return r?(()=>{const ok=r.stato==="approvata"?" ok":(r.ex&&(r.stato||"in_attesa")==="in_attesa"?" ex":""),ca=user.coord?` data-a="rq" data-v="${r.id}" style="cursor:pointer"`:"";return r.uid===user.uid||user.adm||user.coord?`<td class="lv${ok}"${ca} title="${esc(r.reason)}">${esc(String(r.reason||"").slice(0,3))}</td>`:`<td class="lv${ok}"></td>`})():`<td class="${wk(x)}"></td>`}).join("")}</tr>`).join("")
+rows+=E.length?E.map(e=>`<tr ${st}><td class="fc">${esc(e.name)} <span class="mu">${esc(e.mat)}</span>${e.oss?` <span class="mu"><b>OSS</b></span>`:""}</td>${ds.map(x=>{const r=reqs.find(q=>q.date===x.k&&q.uid===e.uid);return r?(()=>{const ok=r.stato==="approvata"?" ok":(r.stato==="rifiutata"?(r.uid===user.uid||user.adm||user.coord?" no":""):(r.ex&&(r.stato||"in_attesa")==="in_attesa"?" ex":"")),ca=user.coord?` data-a="rq" data-v="${r.id}" style="cursor:pointer"`:"";return r.uid===user.uid||user.adm||user.coord?`<td class="lv${ok}"${ca} title="${esc(r.reason)}">${esc(String(r.reason||"").slice(0,3))}</td>`:`<td class="lv${ok}"></td>`})():`<td class="${wk(x)}"></td>`}).join("")}</tr>`).join("")
 :`<tr ${st}><td class="fc mu" colspan="${nd+1}">Nessun dipendente registrato</td></tr>`;
 [["Infermieri",false],["OSS",true]].forEach(([lb,o])=>{rows+=`<tr ${st}><td class="fc"><b>${lb}</b> <span class="mu">(max ${LIM(o)})</span></td>${ds.map(x=>{const n=forCat(x.k,t,o).length;return`<td class="${wk(x)}" style="${n>=LIM(o)?"color:var(--hol);font-weight:700":""}">${n||""}</td>`}).join("")}</tr>`});
 body+=`<section class="ts" data-t="${t}"><div class="cap" style="--tc:${TC[t]}">Squadra ${t} · ${MESI[m]} ${year} · ${E.length} dipendenti</div>${user.coord?approveBtn(t):""}<div class="tw"><table class="gr"><thead>${dh}</thead><tbody>${rows}</tbody></table></div></section>`});
@@ -246,23 +251,42 @@ ${user.adm?`<div class="npr"><p class="mu">Invio al coordinatore (solo amministr
 <button class="lk" data-a="pdf">Scarica PDF</button><button class="lk" data-a="copy">Copia tabella</button></div>`:""}`}
 function profile(){return `<div class="ov" data-a="close"><div class="sh" data-a="keep"><div class="row"><h2>${esc(user.name)}</h2><button class="ib" data-a="close">✕</button></div>
 <p class="mu">Matricola ${esc(user.mat)}</p>${user.coord?"":`<label class="mu">Squadra</label><select class="f1" id="pt">${TEAMS.map(t=>`<option ${t===user.team?"selected":""}>${t}</option>`).join("")}</select>
-<label class="ck"><input type="checkbox" id="po" ${user.oss?"checked":""}> OSS</label>`}
+<label class="ck"><input type="checkbox" id="po" ${user.oss?"checked":""}> OSS</label>
+<label class="mu">Email (solo per avvisi sulle richieste rifiutate)</label><input class="f1" id="pe" type="email" value="${esc(user.email||"")}">`}
 ${user.adm?`<hr><h2>Amministratore: reset password</h2><p class="mu">Imposta una password generica: l’utente dovrà cambiarla al primo accesso.</p>
 <input class="f1" id="rm" placeholder="Matricola dell’utente"><input class="f1" id="rp" value="${genpw()}"><button class="pb" data-a="reset">Reimposta password</button><div id="rr"></div><hr>`:""}
-${user.coord?"":`<button class="pb" data-a="save">Salva</button>`}<button class="lk" data-a="out">Esci</button></div></div>`}
+${user.coord?"":`<button class="lk" data-a="pushon">${user.push?"✓ Notifiche attive su questo dispositivo":"Attiva le notifiche su questo dispositivo"}</button><button class="pb" data-a="save">Salva</button>`}<button class="lk" data-a="out">Esci</button></div></div>`}
 function markEx(rs){const g={};rs.forEach(r=>{const k=r.team+"|"+r.date+"|"+(r.oss?1:0);(g[k]=g[k]||[]).push(r)});
 Object.values(g).forEach(a=>{a.sort((x,z)=>String(x.created_at||"").localeCompare(String(z.created_at||""))||String(x.id).localeCompare(String(z.id)));a.forEach((r,i)=>{r.ex=!r.oss&&i>=SOFT()})});return rs}
 async function load(){if(!user)return;
 const a=await sb.from("profiles").select("*");if(a.data)profs=a.data;
-try{const st=await sb.from("impostazioni").select("*").eq("id",1).maybeSingle();if(st.data){MAXI=+st.data.max_inf||MAXI;MAXO=+st.data.max_oss||MAXO}}catch(e){}
+try{const st=await sb.from("impostazioni").select("*").eq("id",1).maybeSingle();if(st.data){MAXI=+st.data.max_inf||MAXI;MAXO=+st.data.max_oss||MAXO;VAPID=st.data.vapid_public||""}}catch(e){}
 let rs=[],f=0;for(;;){const{data,error}=await sb.from("requests").select("*").gte("date",year+"-01-01").lte("date",year+"-12-31").range(f,f+999);
 if(error)break;rs=rs.concat(data);if(data.length<1000)break;f+=1000}
 const m=new Map(profs.map(p=>[p.id,p]));
 reqs=markEx(rs.map(r=>{const p=m.get(r.user_id)||{};return{...r,uid:r.user_id,name:p.name||"?",mat:p.matricola||"",oss:!!p.oss}}));render()}
+// ===== Notifiche push (service worker sw.js) =====
+let VAPID="";
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+const pushOk=()=>"serviceWorker" in navigator&&"PushManager" in window&&"Notification" in window;
+const urlB64=x=>{const p="=".repeat((4-x.length%4)%4),r=atob((x+p).replace(/-/g,"+").replace(/_/g,"/"));return Uint8Array.from(r,c=>c.charCodeAt(0))};
+async function pushState(){try{if(!pushOk()||Notification.permission!=="granted")return false;const g=await navigator.serviceWorker.getRegistration(),sub=g&&await g.pushManager.getSubscription();return!!sub}catch(e){return false}}
+async function enablePush(){
+if(!pushOk()){toast("Questo dispositivo non supporta le notifiche (su iPhone aggiungi prima l'app alla schermata Home)");return}
+if(!VAPID){toast("Notifiche non ancora configurate dall'amministratore");return}
+try{const perm=await Notification.requestPermission();if(perm!=="granted"){toast("Notifiche non consentite dal dispositivo");return}
+const reg=await navigator.serviceWorker.ready;let sub=await reg.pushManager.getSubscription();
+if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlB64(VAPID)});
+const j=sub.toJSON(),{error}=await sb.from("push_sub").upsert({user_id:user.uid,endpoint:j.endpoint,sub:j},{onConflict:"endpoint"});
+if(error){toast("Errore: riprova");return}
+user.push=true;toast("Notifiche attivate su questo dispositivo");render()}catch(e){toast("Impossibile attivare le notifiche")}}
+async function dropPush(){try{const g=await navigator.serviceWorker.getRegistration(),sub=g&&await g.pushManager.getSubscription();if(sub){await sb.from("push_sub").delete().eq("endpoint",sub.endpoint);await sub.unsubscribe()}}catch(e){}}
+async function chkEmail(){if(user.coord)return;try{const c=await sb.from("contatti").select("email").eq("user_id",user.uid).maybeSingle();if(!c.error){user.email=(c.data&&c.data.email)||"";user.needEmail=!user.email}}catch(e){}}
+const EMRE=/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/;
 async function start(){const{data:{session}}=await sb.auth.getSession();if(!session){user=null;render();return}
 const{data}=await sb.from("profiles").select("*").eq("id",session.user.id).single();
 if(!data){user=null;render();return}
-user={uid:data.id,name:data.name,team:data.team,mat:data.matricola,adm:!!data.is_admin,coord:!!data.is_coord,oss:!!data.oss,must:!!data.must_change};if(user.coord)tab="tbl";await load();
+user={uid:data.id,name:data.name,team:data.team,mat:data.matricola,adm:!!data.is_admin,coord:!!data.is_coord,oss:!!data.oss,must:!!data.must_change};if(user.coord)tab="tbl";await chkEmail();user.push=await pushState();await load();
 if(year===T.getFullYear()){const e=document.getElementById("m"+T.getMonth());if(e&&tab==="cal")e.scrollIntoView()}}
 async function auth(){const mat=$("#ae").value.trim().toLowerCase(),p=$("#ap").value,er=$("#err");let r;
 if(!mat||!p){er.textContent="Compila tutti i campi.";return}
@@ -294,7 +318,11 @@ return`<div class="ov" data-a="close"><div class="sh" data-a="keep"><div class="
 async function setStato(ids,st){if(!user||!user.coord||!ids.length)return;
 const{error}=await sb.rpc("imposta_stato",{p_ids:ids.map(String),p_stato:st});
 if(error){toast("Errore: riprova");return}
-toast(st==="approvata"?(ids.length>1?ids.length+" richieste approvate":"Richiesta approvata"):"Richiesta rifiutata");await load()}
+let ex="";
+if(st==="rifiutata"){try{const r=await sb.functions.invoke("notifica-rifiuto",{body:{ids:ids.map(String)}});
+const d=r.data||{},pt=[];if(d.inviate)pt.push("email");if(d.push)pt.push("notifica");
+ex=r.error?" (avviso non inviato)":(pt.length?" · avviso inviato: "+pt.join(" e "):" (l'utente non ha email né notifiche attive)")}catch(e){ex=" (avviso non inviato)"}}
+toast(st==="approvata"?(ids.length>1?ids.length+" richieste approvate":"Richiesta approvata"):"Richiesta rifiutata"+ex);await load()}
 // ===== PDF identico all'anteprima di stampa (A4 orizzontale, un foglio per squadra) =====
 const PDFLIBS=["https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js","https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"];
 const loadScript=u=>new Promise((ok,ko)=>{const e=document.createElement("script");e.src=u;e.onload=ok;e.onerror=ko;document.head.appendChild(e)});
@@ -314,14 +342,15 @@ const head=[[{content:"Dipendente",styles:{halign:"left"}},...days.map(x=>({cont
 const lt=tint(tc,.12),body=[];
 body.push([{content:"Turno",styles:{halign:"left",fillColor:lt,textColor:[80,80,80]}},...days.map(x=>{const sh=shift(t,year,m,x.d);return{content:sh,styles:{fillColor:rgb(SC[sh][0]),textColor:rgb(SC[sh][1]),fontStyle:"bold"}}})]);
 if(E.length){E.forEach(e=>body.push([{content:e.name+"  "+e.mat+(e.oss?"  OSS":""),styles:{halign:"left",fillColor:lt}},...days.map(x=>{const r=reqs.find(q=>q.date===x.k&&q.uid===e.uid);
-return r?{content:String(r.reason||"?").slice(0,3),styles:{fillColor:r.stato==="approvata"?[22,163,74]:(r.ex&&(r.stato||"in_attesa")==="in_attesa"?[220,38,38]:tc),textColor:WHITE,fontStyle:"bold"}}:{content:"",styles:{fillColor:x.off?WK:WHITE}}})]))}
+return r?{content:String(r.reason||"?").slice(0,3),rej:r.stato==="rifiutata",styles:{fillColor:r.stato==="approvata"?[22,163,74]:(r.ex&&(r.stato||"in_attesa")==="in_attesa"?[220,38,38]:tc),textColor:WHITE,fontStyle:"bold"}}:{content:"",styles:{fillColor:x.off?WK:WHITE}}})]))}
 else body.push([{content:"Nessun dipendente registrato",colSpan:nd+1,styles:{halign:"left",fillColor:lt,textColor:[80,80,80]}}]);
 [["Infermieri",false],["OSS",true]].forEach(([lb,o])=>body.push([{content:lb+" (max "+LIM(o)+")",styles:{halign:"left",fontStyle:"bold",fillColor:lt}},...days.map(x=>{const n=reqs.filter(r=>r.date===x.k&&r.team===t&&!!r.oss===o).length;
 return{content:n?String(n):"",styles:{fillColor:x.off?WK:WHITE,textColor:n>=LIM(o)?RED:BLACK,fontStyle:n>=LIM(o)?"bold":"normal"}}})]));
 const cs={0:{cellWidth:FC,halign:"left",cellPadding:{top:1.6,bottom:1.6,left:2,right:1}}};for(let i=1;i<=nd;i++)cs[i]={cellWidth:(W-FC)/nd};
 doc.autoTable({head,body,startY:19,margin:{left:8,right:8,top:8,bottom:8},tableWidth:W,theme:"grid",columnStyles:cs,
 styles:{font:"helvetica",fontSize:8,cellPadding:{top:1.6,bottom:1.6,left:0,right:0},halign:"center",valign:"middle",lineColor:[153,153,153],lineWidth:.2,textColor:BLACK,overflow:"ellipsize"},
-headStyles:{fillColor:WHITE,textColor:BLACK,fontStyle:"bold",fontSize:7.5}})});
+headStyles:{fillColor:WHITE,textColor:BLACK,fontStyle:"bold",fontSize:7.5},
+didDrawCell:d=>{if(d.section==="body"&&d.cell.raw&&d.cell.raw.rej){const c=d.cell,q=1.2;doc.setDrawColor(220,38,38);doc.setLineWidth(.6);doc.line(c.x+q,c.y+q,c.x+c.width-q,c.y+c.height-q);doc.line(c.x+c.width-q,c.y+q,c.x+q,c.y+c.height-q)}}})});
 return doc}
 const pdfName=()=>"Turni_ferie_"+MESI[gm]+"_"+year+(pt==="all"?"":"_squadra_"+pt)+".pdf";
 // Invio (solo amministratore): 1) email automatica con PDF allegato (funzione Supabase "invia-turni"), 2) condivisione con allegato (smartphone), 3) scarica il PDF e apre l'email
@@ -360,9 +389,16 @@ else if(a==="savemax"){if(!(user.adm||user.coord))return;const mi=parseInt($("#m
 if(!(mi>=1&&mi<=50&&mo>=1&&mo<=50)){toast("Inserisci numeri da 1 a 50");return}
 const{error}=await sb.from("impostazioni").update({max_inf:mi,max_oss:mo}).eq("id",1);
 if(error)toast("Errore: riprova");else{toast("Limite salvato: "+mi+" infermieri, "+mo+" OSS");await load()}}
-else if(a==="save"){const t=$("#pt").value,os=$("#po").checked;const{error}=await sb.from("profiles").update({team:t,oss:os}).eq("id",user.uid);
+else if(a==="pushon"){await enablePush()}
+else if(a==="saveemail"){const em=($("#em").value||"").trim().toLowerCase(),er=$("#err");
+if(!EMRE.test(em)){er.textContent="Inserisci un indirizzo email valido.";return}
+const{error}=await sb.from("contatti").upsert({user_id:user.uid,email:em});if(error){er.textContent="Errore: riprova.";return}
+user.email=em;user.needEmail=false;toast("Email salvata");await load()}
+else if(a==="save"){const pe=($("#pe")?$("#pe").value:"").trim().toLowerCase();
+if(pe&&pe!==user.email){if(!EMRE.test(pe)){toast("Email non valida");return}const r2=await sb.from("contatti").upsert({user_id:user.uid,email:pe});if(r2.error){toast("Errore: riprova");return}user.email=pe}
+const t=$("#pt").value,os=$("#po").checked;const{error}=await sb.from("profiles").update({team:t,oss:os}).eq("id",user.uid);
 if(error)toast("Errore: riprova");else{user.team=t;user.oss=os;gt=null;prof=false;await load()}}
-else if(a==="out"){await sb.auth.signOut();user=null;prof=false;sel=null;reqs=[];render()}
+else if(a==="out"){await dropPush();await sb.auth.signOut();user=null;prof=false;sel=null;reqs=[];render()}
 else if(a==="print")doPrint();else if(a==="sendpdf")await sendPdf();else if(a==="pdf")await dlPdf();
 else if(a==="forgot"){mode="forgot";render()}
 else if(a==="back"){mode="login";render()}
@@ -385,6 +421,6 @@ const m=$("#ml");if(m)m.href="mailto:"+encodeURIComponent(coord)+"?subject="+enc
 (async()=>{
 if(SUPABASE_URL.startsWith("INCOLLA")){$("#app").innerHTML=`<div class="auth"><h1>Configurazione mancante</h1><p>Inserisci URL e chiave di Supabase in cima al file index.html (vedi GUIDA.md).</p></div>`;return}
 sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);render();await start();
-setInterval(()=>{if(user&&!user.must&&!sel&&!prof&&document.activeElement.tagName!=="INPUT"&&document.activeElement.tagName!=="SELECT")load()},30000)
+setInterval(()=>{if(user&&!user.must&&!user.needEmail&&!sel&&!prof&&document.activeElement.tagName!=="INPUT"&&document.activeElement.tagName!=="SELECT")load()},30000)
 })();
 </script></body></html>
