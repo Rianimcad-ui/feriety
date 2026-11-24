@@ -160,7 +160,7 @@ const STATO={in_attesa:"In attesa",approvata:"Approvata",rifiutata:"Rifiutata"};
 const forCat=(d,t,o)=>forDate(d,t).filter(r=>!!r.oss===!!o);
 const emps=t=>profs.filter(p=>p.team===t&&!p.is_coord).map(p=>({uid:p.id,oss:!!p.oss,name:p.name,mat:p.matricola})).sort((a,b)=>a.name.localeCompare(b.name));
 function render(){
-document.body.classList.toggle("wide",!!user&&tab==="tbl");document.body.classList.toggle("bgin",!user||user.must||user.needEmail);
+document.body.classList.toggle("wide",!!user&&tab==="tbl");document.body.classList.toggle("bgin",!user);
 if(!user&&mode==="forgot"){$("#app").innerHTML=`<div class="auth"><h1>Password dimenticata</h1>
 <p class="mu">Inserisci la tua matricola e poi invia la richiesta all’amministratore.</p>
 <input class="f1" id="fm" placeholder="Numero di matricola" value="${esc(fmat)}">
@@ -281,12 +281,19 @@ const j=sub.toJSON(),{error}=await sb.from("push_sub").upsert({user_id:user.uid,
 if(error){toast("Errore: riprova");return}
 user.push=true;toast("Notifiche attivate su questo dispositivo");render()}catch(e){toast("Impossibile attivare le notifiche")}}
 async function dropPush(){try{const g=await navigator.serviceWorker.getRegistration(),sub=g&&await g.pushManager.getSubscription();if(sub){await sb.from("push_sub").delete().eq("endpoint",sub.endpoint);await sub.unsubscribe()}}catch(e){}}
+// ===== Aggiornamento in tempo reale (Supabase Realtime) =====
+let rtCh=null,rtT=null,rtDirty=false;
+const rtBusy=()=>{const e=document.activeElement;return!!sel||prof||(e&&["INPUT","SELECT","TEXTAREA"].includes(e.tagName))};
+function liveRefresh(){clearTimeout(rtT);rtT=setTimeout(async()=>{if(!user||user.must||user.needEmail)return;if(rtBusy()){rtDirty=true;return}rtDirty=false;await load()},400)}
+function liveOff(){if(rtCh){try{sb.removeChannel(rtCh)}catch(e){}rtCh=null}}
+function liveOn(){liveOff();if(!user)return;try{rtCh=sb.channel("live-"+user.uid);["requests","profiles","impostazioni"].forEach(t=>{rtCh=rtCh.on("postgres_changes",{event:"*",schema:"public",table:t},liveRefresh)});rtCh.subscribe()}catch(e){}}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&user&&!user.must&&!user.needEmail){liveOn();liveRefresh()}});
 async function chkEmail(){if(user.coord)return;try{const c=await sb.from("contatti").select("email").eq("user_id",user.uid).maybeSingle();if(!c.error){user.email=(c.data&&c.data.email)||"";user.needEmail=!user.email}}catch(e){}}
 const EMRE=/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/;
 async function start(){const{data:{session}}=await sb.auth.getSession();if(!session){user=null;render();return}
 const{data}=await sb.from("profiles").select("*").eq("id",session.user.id).single();
 if(!data){user=null;render();return}
-user={uid:data.id,name:data.name,team:data.team,mat:data.matricola,adm:!!data.is_admin,coord:!!data.is_coord,oss:!!data.oss,must:!!data.must_change};if(user.coord)tab="tbl";await chkEmail();user.push=await pushState();await load();
+user={uid:data.id,name:data.name,team:data.team,mat:data.matricola,adm:!!data.is_admin,coord:!!data.is_coord,oss:!!data.oss,must:!!data.must_change};if(user.coord)tab="tbl";await chkEmail();user.push=await pushState();await load();liveOn();
 if(year===T.getFullYear()){const e=document.getElementById("m"+T.getMonth());if(e&&tab==="cal")e.scrollIntoView()}}
 async function auth(){const mat=$("#ae").value.trim().toLowerCase(),p=$("#ap").value,er=$("#err");let r;
 if(!mat||!p){er.textContent="Compila tutti i campi.";return}
@@ -373,7 +380,7 @@ window.addEventListener("afterprint",()=>{const ps=$("#ps");if(ps)ps.textContent
 document.addEventListener("click",async ev=>{
 const el=ev.target.closest("[data-a]");if(!el)return;const a=el.dataset.a,v=el.dataset.v;
 if(a==="keep")return;
-if(a==="close"){if(ev.target.closest(".ib")||ev.target.classList.contains("ov")){sel=null;prof=false;rq=null;render()}return}
+if(a==="close"){if(ev.target.closest(".ib")||ev.target.classList.contains("ov")){sel=null;prof=false;rq=null;render();if(rtDirty){rtDirty=false;liveRefresh()}}return}
 if(a==="mode"){mode=mode==="reg"?"login":"reg";render()}
 else if(a==="auth")auth();
 else if(a==="tab"){if(!user.coord){tab=v;render();scrollTo(0,0)}}
@@ -398,7 +405,7 @@ else if(a==="save"){const pe=($("#pe")?$("#pe").value:"").trim().toLowerCase();
 if(pe&&pe!==user.email){if(!EMRE.test(pe)){toast("Email non valida");return}const r2=await sb.from("contatti").upsert({user_id:user.uid,email:pe});if(r2.error){toast("Errore: riprova");return}user.email=pe}
 const t=$("#pt").value,os=$("#po").checked;const{error}=await sb.from("profiles").update({team:t,oss:os}).eq("id",user.uid);
 if(error)toast("Errore: riprova");else{user.team=t;user.oss=os;gt=null;prof=false;await load()}}
-else if(a==="out"){await dropPush();await sb.auth.signOut();user=null;prof=false;sel=null;reqs=[];render()}
+else if(a==="out"){liveOff();await dropPush();await sb.auth.signOut();user=null;prof=false;sel=null;reqs=[];render()}
 else if(a==="print")doPrint();else if(a==="sendpdf")await sendPdf();else if(a==="pdf")await dlPdf();
 else if(a==="forgot"){mode="forgot";render()}
 else if(a==="back"){mode="login";render()}
